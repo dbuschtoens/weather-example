@@ -1,10 +1,12 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "outDir": "./bin/"
-    },
-    "files": [
-        "./src/app.ts"
-    ]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "./bin/"
+  },
+  "files": [
+    "typings/browser.d.ts",
+    "src/app.ts",
+    "src/weatherService.ts"
+  ]
 }
