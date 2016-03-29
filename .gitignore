@@ -33,6 +33,9 @@ bin
 # Typing dependencies are declared in typings.json an should be installed with "typings install"
 typings
 
+# Visual Studio Code specific files
+.vscode
+
 
 # =========================
 # Operating System Files

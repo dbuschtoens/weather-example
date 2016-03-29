@@ -5,3 +5,4 @@ weatherService.poll("Karlsruhe").then(function(data) {
 }).catch((error) => {
   console.log(error);
 });
+

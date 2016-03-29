@@ -1,6 +1,6 @@
 let API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
-export interface DataPoint {
+export interface WeatherDatum {
   date: Date;
   weather: String; // coarse description
   weatherDetailed: String; // detailed description
@@ -15,54 +15,77 @@ export interface DataPoint {
   snow: number; // volume last 3h
 }
 
-export interface Data {
+export interface WeatherData {
   cityName: String;
   countryName: String;
   dataCount: number; // number of available data points
-  dataPoints: DataPoint[]
+  forcasts: WeatherDatum[];
+  current: WeatherDatum;
+  sunriseTime: Date;
+  sunsetTime: Date;
 }
 
-export function poll(cityName: String): Promise<Data> {
-  let url = "http://api.openweathermap.org/data/2.5/forecast?q="
+export function poll(cityName: String): Promise<WeatherData> {
+  let forcastUrl = "http://api.openweathermap.org/data/2.5/forecast?q="
     + cityName
     + "&type=like&units=metric&APPID=" + API_KEY;
-  return fetch(url).then(function(response) {
+  let currentUrl = "http://api.openweathermap.org/data/2.5/weather?q="
+    + cityName
+    + "&type=like&units=metric&APPID=" + API_KEY;
+  let currentJson;
+  let forecastJson;
+  return fetch(currentUrl).then(function(response) {
     return response.json();
   }).then(function(json) {
-    if (json.cod !== "200") {
-      throw new Error("OpenWeatherMap.org responded with: " + json.cod + ": " + json.message);
+    if (json.cod !== 200 && json.cod !== "200") {
+      throw new Error("Error fetching weather data, OpenWeatherMap.org responded with: " + json.cod
+        + "\n total data received: \n" + JSON.stringify(json));
     }
-    let weatherData = parseJson(json);
-    return Promise.resolve(weatherData);
+    currentJson = json;
+    return fetch(forcastUrl).then(function(response) {
+      return response.json();
+    }).then(function(json) {
+      if (json.cod !== 200 && json.cod !== "200") {
+        throw new Error("Error fetching forecast data OpenWeatherMap.org responded with: " + json.cod + ": " + json.message
+          + "\n total data received: \n" + JSON.stringify(json));
+      }
+      forecastJson = json;
+      let weatherData = parseData(currentJson, forecastJson);
+      return Promise.resolve(weatherData);
+    });
   });
 }
 
-function parseJson(json: any): Data {
-  let weatherData: Data = {
-    cityName: json.city.name,
-    countryName: json.city.country,
-    dataCount: json.cnt,
-    dataPoints: []
+function parseData(current: any, forecast: any): WeatherData {
+  let weatherData: WeatherData = {
+    cityName: forecast.city.name,
+    countryName: forecast.city.country,
+    dataCount: forecast.cnt,
+    current: null,
+    forcasts: [],
+    sunriseTime: new Date(current.sys.sunrise * 1000),
+    sunsetTime: new Date(current.sys.sunset * 1000),
   };
+  weatherData.current = parseDatum(current);
   for (let index = 0; index < weatherData.dataCount; index++) {
-    let date = new Date(json.list[index].dt * 1000);
-    let rain = json.list[index].rain.hasOwnProperty("3h") ? json.list[index].rain["3h"] : 0;
-    let snow = json.list[index].hasOwnProperty("3h") ? json.list[index].snow["3h"] : 0;
-    let weatherDataPoint: DataPoint = {
-      date: date,
-      weather: json.list[index].weather.main,
-      weatherDetailed: json.list[index].weather.description,
-      weatherIcon: json.list[index].weather.icon,
-      temperature: json.list[index].main.temp,
-      pressure: json.list[index].main.pressure,
-      humidity: json.list[index].main.humidity,
-      cloudCoverage: json.list[index].clouds.all,
-      windSpeed: json.list[index].wind.speed,
-      windDirection: json.list[index].wind.deg,
-      rain: rain,
-      snow: snow
-    };
-    weatherData.dataPoints.push(weatherDataPoint);
+    weatherData.forcasts.push(parseDatum(forecast.list[index]));
   }
   return weatherData;
+}
+
+function parseDatum(datum: any): WeatherDatum {
+  return {
+    date: new Date(datum.dt * 1000),
+    weather: datum.weather.main,
+    weatherDetailed: datum.weather.description,
+    weatherIcon: datum.weather.icon,
+    temperature: datum.main.temp,
+    pressure: datum.main.pressure,
+    humidity: datum.main.humidity,
+    cloudCoverage: datum.clouds.all,
+    windSpeed: datum.wind.speed,
+    windDirection: datum.wind.deg,
+    rain: datum.rain.hasOwnProperty("3h") ? datum.rain["3h"] : 0,
+    snow: datum.hasOwnProperty("3h") ? datum.snow["3h"] : 0
+  };
 }
