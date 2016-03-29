@@ -30,6 +30,10 @@ node_modules
 # Compiled .js files
 bin
 
+# Typing dependencies are declared in typings.json an should be installed with "typings install"
+typings
+
+
 # =========================
 # Operating System Files
 # =========================
