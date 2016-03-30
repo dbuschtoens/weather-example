@@ -1,6 +1,7 @@
 /// <reference path="../node_modules/tabris/tabris.d.ts"/>
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
 import forcastScroll from "./forcastScroll";
+import currentWeather from "./currentWeather";
 
 tabris.ui.set("toolbarVisible", false);
 
@@ -32,8 +33,14 @@ pollWeatherData("Karlsruhe").then(function(data) {
 });
 
 function drawApp(data: WeatherData) {
-  new forcastScroll(data, {
+  new currentWeather(data, {
     top: 0,
+    left: 0,
+    right: 0,
+    height: tabris.device.get("screenHeight") / 3
+  }).appendTo(scroll);
+  new forcastScroll(data, {
+    top: "prev()",
     left: 0,
     right: 0,
     bottom: 0
