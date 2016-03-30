@@ -18,14 +18,14 @@ export interface WeatherDatum {
 export interface WeatherData {
   cityName: String;
   countryName: String;
-  dataCount: number; // number of available data points
+  forcastCount: number; // number of available data points
   forcasts: WeatherDatum[];
   current: WeatherDatum;
   sunriseTime: Date;
   sunsetTime: Date;
 }
 
-export function poll(cityName: String): Promise<WeatherData> {
+export function pollWeatherData(cityName: String): Promise<WeatherData> {
   let forcastUrl = "http://api.openweathermap.org/data/2.5/forecast?q="
     + cityName
     + "&type=like&units=metric&APPID=" + API_KEY;
@@ -60,14 +60,14 @@ function parseData(current: any, forecast: any): WeatherData {
   let weatherData: WeatherData = {
     cityName: forecast.city.name,
     countryName: forecast.city.country,
-    dataCount: forecast.cnt,
+    forcastCount: forecast.cnt,
     current: null,
     forcasts: [],
     sunriseTime: new Date(current.sys.sunrise * 1000),
     sunsetTime: new Date(current.sys.sunset * 1000),
   };
   weatherData.current = parseDatum(current);
-  for (let index = 0; index < weatherData.dataCount; index++) {
+  for (let index = 0; index < weatherData.forcastCount; index++) {
     weatherData.forcasts.push(parseDatum(forecast.list[index]));
   }
   return weatherData;
@@ -76,9 +76,9 @@ function parseData(current: any, forecast: any): WeatherData {
 function parseDatum(datum: any): WeatherDatum {
   return {
     date: new Date(datum.dt * 1000),
-    weather: datum.weather.main,
-    weatherDetailed: datum.weather.description,
-    weatherIcon: datum.weather.icon,
+    weather: datum.weather[0].main,
+    weatherDetailed: datum.weather[0].description,
+    weatherIcon: datum.weather[0].icon,
     temperature: datum.main.temp,
     pressure: datum.main.pressure,
     humidity: datum.main.humidity,

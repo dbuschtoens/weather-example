@@ -7,6 +7,7 @@
   "files": [
     "typings/browser.d.ts",
     "src/app.ts",
-    "src/weatherService.ts"
+    "src/weatherService.ts",
+    "src/forcastScroll.ts"
   ]
 }

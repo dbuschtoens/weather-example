@@ -1,6 +1,5 @@
 {
   "ambientDependencies": {
-    "tabris": "registry:dt/tabris#1.2.0+20160317120654",
     "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160316155526"
   }
 }
