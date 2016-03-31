@@ -1,12 +1,12 @@
 /// <reference path="../node_modules/tabris/tabris.d.ts"/>
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
-import ForcastScrollView from "./forcastScroll";
+import ForecastScrollView from "./forcastScroll";
 import CurrentWeatherView from "./currentWeather";
 
 tabris.ui.set("toolbarVisible", false);
 
 let page = new tabris.Page({
-  title: "Weather Forcast",
+  title: "Weather Forecast",
   topLevel: true,
 });
 
@@ -32,7 +32,7 @@ function drawUI(data: WeatherData) {
     left: 0,
     right: 0,
   }).appendTo(scrollView);
-  new ForcastScrollView(data, {
+  new ForecastScrollView(data, {
     top: "prev()",
     left: 0,
     right: 0,

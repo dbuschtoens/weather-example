@@ -1,7 +1,7 @@
 const API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
 export function pollWeatherData(cityName: String): Promise<WeatherData> {
-  let forcastUrl = "http://api.openweathermap.org/data/2.5/forecast?q="
+  let forecastUrl = "http://api.openweathermap.org/data/2.5/forecast?q="
     + cityName
     + "&type=like&units=metric&APPID=" + API_KEY;
   let currentUrl = "http://api.openweathermap.org/data/2.5/weather?q="
@@ -12,11 +12,11 @@ export function pollWeatherData(cityName: String): Promise<WeatherData> {
     .then((response) => response.json())
     .then(checkResponse);
 
-  let forcastPromise = fetch(forcastUrl)
+  let forecastPromise = fetch(forecastUrl)
     .then((response) => response.json())
     .then(checkResponse);
 
-  return Promise.all([currentPromise, forcastPromise])
+  return Promise.all([currentPromise, forecastPromise])
     .then((jsons) => Promise.resolve(new WeatherData(jsons[0], jsons[1])));
 }
 
@@ -30,7 +30,7 @@ function checkResponse(json: any) {
 export class WeatherData {
   public cityName: String;
   public countryName: String;
-  public forcasts: WeatherDatum[];
+  public forecasts: WeatherDatum[];
   public current: WeatherDatum;
   public sunriseTime: Date;
   public sunsetTime: Date;
@@ -39,11 +39,11 @@ export class WeatherData {
     this.cityName = forecast.city.name;
     this.countryName = forecast.city.country;
     this.current = null;
-    this.forcasts = [];
+    this.forecasts = [];
     this.sunriseTime = new Date(current.sys.sunrise * 1000);
     this.sunsetTime = new Date(current.sys.sunset * 1000);
     this.current = this.parseDatum(current);
-    this.forcasts = forecast.list.map(this.parseDatum);
+    this.forecasts = forecast.list.map(this.parseDatum);
   }
 
   private parseDatum(datum: any): WeatherDatum {
