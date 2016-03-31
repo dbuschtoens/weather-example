@@ -1,7 +1,7 @@
 /// <reference path="../node_modules/tabris/tabris.d.ts"/>
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
-import ForecastScrollView from "./forcastScroll";
-import CurrentWeatherView from "./currentWeather";
+import ForecastScrollView from "./forecastScrollView";
+import CurrentWeatherView from "./currentWeatherView";
 
 tabris.ui.set("toolbarVisible", false);
 
