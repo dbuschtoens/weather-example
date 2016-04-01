@@ -1,3 +1,5 @@
+/// <reference path="../typings/browser.d.ts" />
+
 const API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
 export function pollWeatherData(cityName: String): Promise<WeatherData> {
@@ -8,28 +10,42 @@ export function pollWeatherData(cityName: String): Promise<WeatherData> {
     + cityName
     + "&type=like&units=metric&APPID=" + API_KEY;
 
-  let currentPromise = fetch(currentUrl)
-    .then((response) => response.json())
-    .then(checkResponse);
-
-  let forecastPromise = fetch(forecastUrl)
-    .then((response) => response.json())
-    .then(checkResponse);
-
+  let currentPromise = fetchWithBackoff(currentUrl).then(validateResponse);
+  let forecastPromise = fetchWithBackoff(forecastUrl, 50).then(validateResponse);
   return Promise.all([currentPromise, forecastPromise])
     .then((jsons) => Promise.resolve(new WeatherData(jsons[0], jsons[1])));
 }
 
-function checkResponse(json: any) {
-  if (json.cod !== 200 && json.cod !== "200") {
-    throw new Error("Error fetching data, OpenWeatherMap.org responded with: " + JSON.stringify(json));
+function fetchWithBackoff(url: string, waitTime?: number): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    if (waitTime > 2000) {
+      reject("Timeout fetching data");
+    }
+    setTimeout(() => {
+      fetch(url)
+        .then((response) => {
+          if (response.ok) {
+            resolve(response);
+          } else if (response.status === 429) {
+            resolve(fetchWithBackoff(url, waitTime ? (2 * waitTime) : 50));
+          } else {
+            reject(response);
+          }
+        });
+    }, waitTime);
+  });
+}
+function validateResponse(response: any) {
+  if (!response.ok) {
+    console.log("weatherAPI status code : " + response.status);
+    throw new Error("Error fetching weather data");
   }
-  return json;
+  return response.json();
 }
 
 export class WeatherData {
-  public cityName: String;
-  public countryName: String;
+  public cityName: string;
+  public countryName: string;
   public forecasts: WeatherDatum[];
   public current: WeatherDatum;
   public sunriseTime: Date;
@@ -66,9 +82,9 @@ export class WeatherData {
 
 export interface WeatherDatum {
   date: Date;
-  weather: String; // coarse description
-  weatherDetailed: String; // detailed description
-  weatherIcon: String; // iconID for weather icon
+  weather: string; // coarse description
+  weatherDetailed: string; // detailed description
+  weatherIcon: string; // iconID for weather icon
   temperature: number;
   pressure: number;
   humidity: number;
