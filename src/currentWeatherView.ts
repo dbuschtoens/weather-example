@@ -1,4 +1,4 @@
-/// <reference path="../node_modules/tabris/tabris.d.ts"/>
+/// <reference path="../typings/browser.d.ts" />
 import {WeatherData} from "./weatherService";
 
 const textColor = "rgb(255, 255,255)";
@@ -6,16 +6,21 @@ const MARGIN = 8;
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const smallFont = "15px";
 
+interface CurrentWeatherViewProperties extends tabris.CompositeProperties {
+  data: WeatherData;
+}
+
 export default class CurrentWeatherView extends tabris.Composite {
-  constructor(data: WeatherData, properties: any) {
+    constructor(properties: CurrentWeatherViewProperties) {
     super(properties);
+    let data = properties.data;
     this.createCityNameText(data.cityName + ", " + data.countryName).appendTo(this);
     this.createText(days[data.current.date.getDay()] + " " + data.current.date.getDate()).appendTo(this);
     this.createItalicText(data.current.date.getHours() + ":00").appendTo(this);
     this.createWeatherIcon(data.current.weatherIcon).appendTo(this);
     this.createTemperatureText(Math.round(data.current.temperature)).appendTo(this);
   }
-  createCityNameText(text: String) {
+  createCityNameText(text: string) {
     return new tabris.TextView({
       top: 0,
       centerX: 0,
@@ -24,7 +29,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: "bold 32px"
     });
   }
-  createText(text: String) {
+  createText(text: string) {
     return new tabris.TextView({
       top: "prev()",
       centerX: 0,
@@ -33,7 +38,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: smallFont
     });
   }
-  createItalicText(text: String) {
+  createItalicText(text: string) {
     return new tabris.TextView({
       top: "prev()",
       centerX: 0,
@@ -42,7 +47,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: "italic " + smallFont
     });
   }
-  createWeatherIcon(icon: String) {
+  createWeatherIcon(icon: string) {
     return new tabris.ImageView({
       top: "prev()",
       centerX: 0,

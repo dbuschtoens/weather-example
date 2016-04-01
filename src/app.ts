@@ -1,4 +1,4 @@
-/// <reference path="../node_modules/tabris/tabris.d.ts"/>
+/// <reference path="../typings/browser.d.ts" />
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
 import ForecastScrollView from "./forecastScrollView";
 import CurrentWeatherView from "./currentWeatherView";
@@ -27,12 +27,14 @@ pollWeatherData("Karlsruhe")
   .then(() => activityIndicator.dispose());
 
 function drawUI(data: WeatherData) {
-  new CurrentWeatherView(data, {
+  new CurrentWeatherView({
+    data: data,
     top: 0,
     left: 0,
     right: 0,
   }).appendTo(scrollView);
-  new ForecastScrollView(data, {
+  new ForecastScrollView({
+    data: data,
     top: "prev()",
     left: 0,
     right: 0,

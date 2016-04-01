@@ -1,4 +1,4 @@
-/// <reference path="../node_modules/tabris/tabris.d.ts"/>
+/// <reference path="../typings/browser.d.ts" />
 import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255,255)";
 const margin = 8;
@@ -7,12 +7,17 @@ const forecastBoxWidth = 90;
 const forecastBoxHeight = 120;
 const smallFont = "15px";
 
+interface ForecastScrollViewProperties extends tabris.ScrollViewProperties {
+  data: WeatherData;
+}
+
 export default class ForecastScrollView extends tabris.ScrollView {
   private scrollView: tabris.ScrollView;
 
-  constructor(data: WeatherData, properties: any) {
+  constructor(properties: ForecastScrollViewProperties) {
     properties.direction = "horizontal";
     super(properties);
+    let data = properties.data;
     this.createForecastBox(data.forecasts[0]).set("left", 0).appendTo(this);
     for (let index = 1; index < data.forecasts.length; index++) {
       this.createForecastBox(data.forecasts[index], data.forecasts[index - 1]).appendTo(this);
