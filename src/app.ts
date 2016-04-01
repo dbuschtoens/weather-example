@@ -2,6 +2,7 @@
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
 import ForecastScrollView from "./forecastScrollView";
 import CurrentWeatherView from "./currentWeatherView";
+import Graph from "./weatherGraph";
 
 tabris.ui.set("toolbarVisible", false);
 
@@ -32,6 +33,11 @@ function drawUI(data: WeatherData) {
     top: 0,
     left: 0,
     right: 0,
+  }).appendTo(scrollView);
+  new Graph({
+    data: data,
+    top: "prev()",
+    left: 0
   }).appendTo(scrollView);
   new ForecastScrollView({
     data: data,

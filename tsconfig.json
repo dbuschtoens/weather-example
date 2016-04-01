@@ -9,6 +9,7 @@
     "src/app.ts",
     "src/weatherService.ts",
     "src/forcastScroll.ts",
-    "src/currentWeather.ts"
+    "src/currentWeather.ts",
+    "src/weatherGraph.ts"
   ]
 }
