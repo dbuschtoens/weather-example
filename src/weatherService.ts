@@ -40,7 +40,11 @@ function validateResponse(response: any) {
     console.log("weatherAPI status code : " + response.status);
     throw new Error("Error fetching weather data");
   }
-  return response.json();
+  let json = response.json();
+  if (!json.city) {
+    throw new Error("City not found");
+  }
+  return json;
 }
 
 export class WeatherData {
@@ -54,8 +58,6 @@ export class WeatherData {
   constructor(current: any, forecast: any) {
     this.cityName = forecast.city.name;
     this.countryName = forecast.city.country;
-    this.current = null;
-    this.forecasts = [];
     this.sunriseTime = new Date(current.sys.sunrise * 1000);
     this.sunsetTime = new Date(current.sys.sunset * 1000);
     this.current = this.parseDatum(current);
