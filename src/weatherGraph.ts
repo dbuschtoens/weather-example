@@ -7,37 +7,47 @@ const uiFont = "12px sans-serif";
 const uiLineColor = "rgba(20,20,20,0.3)";
 const uiLineWidth = 2;
 const uiTextColor = "rgba(20,20,20,0.5)";
+const minHorizontalDistance = 50;
+const minVerticalDistance = 50;
 const graphLineColor = "rgba(20,20,20,0.7)";
 const nightColor = "rgba(0,0,60,0.3)";
 const dayColor = "rgba(255,187,69,0.3)";
-const dayLength = 24 * 60 * 60 * 1000;
+const lengthHour = 60 * 60 * 1000;
+const lengthDay = 24 * 60 * 60 * 1000;
+const margins = { top: 20, left: 30, bottom: 10, right: 10 };
+const maxZoom = 5;
 
 interface WeatherGraphProperties extends tabris.CanvasProperties {
   data: WeatherData;
 }
 
 export default class WeatherGraph extends tabris.Canvas {
-  private margins = { top: 20, left: 30, bottom: 10, right: 10, width: 0, height: 0 }; // remove?
   private scale: { minX: number, maxX: number, minY: number, maxY: number };
   private data: WeatherData;
 
   constructor(properties: WeatherGraphProperties) {
     super(properties);
     this.data = properties.data;
-    this.init();
-    this.on("resize", (canvas, bounds) => {
-      let height = tabris.device.get("screenHeight") / 3;
-      let width = tabris.device.get("screenWidth");
-      this.set("height", height);
-      this.set("width", width);
-      let ctx = <any>this.getContext("2d", width, height);
-      this.margins.width = this.get("width") - this.margins.left - this.margins.right;
-      this.margins.height = this.get("height") - this.margins.top - this.margins.bottom;
-      this.draw(ctx);
-    });
+    this.initScale();
+    this.setCanvasBounds();
+    this.draw();
   }
 
-  private init() {
+  public zoom(factor: number) {
+    console.error("zoom " + factor);
+    let screenWidth = tabris.device.get("screenWidth");
+    let currentWidth = this.get("width");
+    let newWidth = Math.min(Math.max(screenWidth, currentWidth * factor), maxZoom * screenWidth);
+    this.setCanvasBounds(newWidth);
+    this.draw();
+  }
+  private setCanvasBounds(width?: number) {
+    let height = tabris.device.get("screenHeight") / 3;
+    if (!width) width = tabris.device.get("screenWidth");
+    this.set("height", height);
+    this.set("width", width);
+  }
+  private initScale() {
     let minTime = this.data.current.date.getTime();
     let maxTime = this.data.forecasts[this.data.forecasts.length - 1].date.getTime();
     let temperatures = this.data.forecasts.map((forcast) => forcast.temperature)
@@ -54,11 +64,12 @@ export default class WeatherGraph extends tabris.Canvas {
     };
   }
 
-  private draw(ctx: any) {
+  private draw() {
+    let ctx = <any>this.getContext("2d", this.get("width"), this.get("height"));
     this.drawBackground(ctx);
-    this.drawTemperatureCurve(ctx);
-    this.drawTemperatureScale(ctx, 5);
+    this.drawTemperatureScale(ctx);
     this.drawTimeScale(ctx);
+    this.drawTemperatureCurve(ctx);
   }
 
   private drawBackground(ctx: any) {
@@ -66,8 +77,8 @@ export default class WeatherGraph extends tabris.Canvas {
     let sunsetTime = this.data.sunsetTime.getTime();
     let now = this.scale.minX;
     let isDay = (sunriseTime < now && now < sunsetTime);
-    sunriseTime += (now > sunriseTime) ? dayLength : 0;
-    sunsetTime += (now > sunsetTime) ? dayLength : 0;
+    sunriseTime += (now > sunriseTime) ? lengthDay : 0;
+    sunsetTime += (now > sunsetTime) ? lengthDay : 0;
     let startTime = Math.min(sunriseTime, sunsetTime);
     let endTime = Math.max(sunriseTime, sunsetTime);
 
@@ -76,80 +87,141 @@ export default class WeatherGraph extends tabris.Canvas {
     while (endTime < this.scale.maxX) {
       this.drawArea(ctx, startTime, endTime, isDay ? dayColor : nightColor);
       isDay = !isDay;
-      [startTime, endTime] = [endTime, startTime + dayLength];
+      [startTime, endTime] = [endTime, startTime + lengthDay];
     }
     this.drawArea(ctx, startTime, this.scale.maxX, isDay ? dayColor : nightColor);
   }
 
   private drawArea(ctx: any, startTime: number, endTime: number, color: string) {
     ctx.fillStyle = color;
+    let graphHeight = this.get("height") - margins.top - margins.bottom;
     ctx.fillRect(this.getX(startTime),
-      this.margins.top,
+      this.getY(this.scale.maxY),
       this.getX(endTime) - this.getX(startTime),
-      this.margins.height);
+      graphHeight);
   };
 
-  private drawTemperatureScale(ctx: any, density: number) {
-    let minHeight = Math.ceil(this.scale.minY / density) * density;
+  private drawTemperatureScale(ctx: any) {
+    let degreeHeight = this.getY(this.scale.minY + 1) - this.getY(this.scale.minY);
+    let degreeStep = (degreeHeight > minVerticalDistance) ? 1
+      : (2 * degreeHeight > minVerticalDistance) ? 2 : 5;
+    let minHeight = Math.ceil(this.scale.minY / degreeStep) * degreeStep;
     ctx.strokeStyle = uiLineColor;
     ctx.lineWidth = uiLineWidth;
-    for (let height = minHeight; height < this.scale.maxY; height += density) {
+    for (let height = minHeight; height < this.scale.maxY; height += degreeStep) {
       // horizontal line
       ctx.beginPath();
-      ctx.moveTo(this.margins.left, this.getY(height));
-      ctx.lineTo(this.margins.left + this.margins.width, this.getY(height));
+      ctx.moveTo(this.getX(this.scale.minX), this.getY(height));
+      ctx.lineTo(this.getX(this.scale.maxX), this.getY(height));
       ctx.stroke();
       // text label
       ctx.fillStyle = uiTextColor;
       ctx.font = uiFont;
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
-      ctx.fillText(height + "°C", this.margins.left - 2, this.getY(height));
+      ctx.fillText(height + "°C", this.getX(this.scale.minX) - 2, this.getY(height));
     }
   }
 
   private drawTimeScale(ctx: any) {
-    let minDay = Math.ceil(this.scale.minX / dayLength) * dayLength;
     ctx.strokeStyle = uiLineColor;
     ctx.lineWidth = uiLineWidth;
-    for (let day = minDay; day < this.scale.maxX; day += dayLength) {
-      // vertical line
-      ctx.beginPath();
-      ctx.moveTo(this.getX(day), this.margins.top + this.margins.height);
-      ctx.lineTo(this.getX(day), this.margins.top - 12);
-      ctx.stroke();
-      // text label
-      ctx.fillStyle = uiTextColor;
-      ctx.font = uiFont;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "bottom";
-      let dayName = daysNames[new Date(day).getDay()];
-      ctx.fillText(dayName, this.getX(day) + 3, this.margins.top +1);
+    ctx.fillStyle = uiTextColor;
+    ctx.font = uiFont;
+    let minDay = Math.ceil(this.scale.minX / lengthDay) * lengthDay;
+    for (let day = minDay; day < this.scale.maxX; day += lengthDay) {
+      this.drawVerticalLine(ctx, day, 12);
+      this.drawDayLabel(ctx, day);
     }
+    let hourWidth = this.getX(this.scale.minX + lengthHour) - this.getX(this.scale.minX);
+    let hourStep = (2 * hourWidth > minHorizontalDistance) ? 2 * lengthHour
+      : (6 * hourWidth > minHorizontalDistance) ? 6 * lengthHour : undefined;
+    if (hourStep) {
+      let minHour = Math.ceil(this.scale.minX / hourStep) * hourStep;
+      for (let hour = minHour; hour < this.scale.maxX; hour += hourStep) {
+        this.drawVerticalLine(ctx, hour, 0);
+        this.drawHourLabel(ctx, hour);
+      }
+    }
+  }
+
+  private drawVerticalLine(ctx: any, time: number, extraLength: number) {
+    ctx.beginPath();
+    ctx.moveTo(this.getX(time), this.getY(this.scale.minY));
+    ctx.lineTo(this.getX(time), this.getY(this.scale.maxY) - extraLength);
+    ctx.stroke();
+  }
+  private drawDayLabel(ctx: any, day: number) {
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    let dayName = daysNames[new Date(day).getDay()];
+    ctx.fillText(dayName, this.getX(day) + 3, this.getY(this.scale.maxY) + 1);
+  }
+
+  private drawHourLabel(ctx: any, hour: number) {
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    let hourNumber = new Date(hour).getHours();
+    let hourString = (hourNumber < 10) ? "0" + hourNumber + ":00" : hourNumber + ":00";
+    ctx.fillText(hourString, this.getX(hour), this.getY(this.scale.minY) + 1);
   }
 
   private drawTemperatureCurve(ctx: any) {
-    ctx.beginPath();
-    ctx.strokeStyle = graphLineColor;
-    ctx.lineWidth = 3;
-    ctx.moveTo(this.getX(this.data.current.date.getTime()), this.getY(this.data.current.temperature));
-    for (let index = 0; index < this.data.forecasts.length; index++) {
-      ctx.lineTo(this.getX(this.data.forecasts[index].date.getTime()),
-        this.getY(this.data.forecasts[index].temperature));
-      // TODO: calculate correct cps for a continuous bezier path
+    let points: Point[] = [{ x: this.data.current.date.getTime(), y: this.data.current.temperature }]
+      .concat(this.data.forecasts.map((forecast) =>
+        ({ x: forecast.date.getTime(), y: forecast.temperature })));
+    for (let i = 1; i < points.length - 1; i++) {
+      points[i].dydx = this.estimateDerivative(points[i - 1], points[i], points[i + 1]);
     }
-    ctx.stroke();
+    let n = points.length - 1;
+    points[0].dydx = (points[1].y - points[0].y) / (points[1].x - points[0].x);
+    points[n].dydx = (points[n].y - points[n - 1].y) / (points[n].x - points[n - 1].x);
+    for (let point of points) {
+      this.drawPoint(ctx, point);
+    }
+    this.drawHermiteInterpolation(ctx, points);
+  }
+
+  private estimateDerivative(prev: Point, point: Point, next: Point): number {
+    if ((prev.y > point.y && next.y > point.y)
+      || (prev.y < point.y && next.y < point.y)) {
+      return 0;
+    } else {
+      return (next.y - prev.y) / (next.x - prev.x);
+    }
+  }
+
+  private drawHermiteInterpolation(ctx: any, points: Point[]) {
+    ctx.strokeStyle = graphLineColor;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < points.length - 1; i++) {
+      ctx.beginPath();
+      let [b0, b3] = [points[i], points[i + 1]];
+      let h = (b3.x - b0.x) / 3;
+      let b1 = { x: b0.x + h, y: b0.y + (h * b0.dydx) };
+      let b2 = { x: b3.x - h, y: b3.y - (h * b3.dydx) };
+      ctx.moveTo(this.getX(b0.x), this.getY(b0.y));
+      ctx.bezierCurveTo(this.getX(b1.x), this.getY(b1.y), this.getX(b2.x), this.getY(b2.y), this.getX(b3.x), this.getY(b3.y))
+      ctx.stroke();
+    }
+  }
+
+  private drawPoint(ctx: any, point: Point) {
+    ctx.strokeStyle = graphLineColor;
+    ctx.strokeRect(this.getX(point.x) - 3, this.getY(point.y) - 3, 6, 6);
   }
 
   private getX(time: number): number {
+    let graphWidth = this.get("width") - margins.left - margins.right;
     let ratio = (time - this.scale.minX) / (this.scale.maxX - this.scale.minX);
-    let x = this.margins.left + (this.margins.width * ratio);
-    return x;
+    return margins.left + (graphWidth * ratio);
   }
 
   private getY(temperature: number): number {
+    let graphHeight = this.get("height") - margins.top - margins.bottom;
     let ratio = (temperature - this.scale.minY) / (this.scale.maxY - this.scale.minY);
-    let y = this.margins.top + this.margins.height * (1 - ratio);
-    return y;
+    return margins.top + graphHeight * (1 - ratio);
   }
 }
+
+interface Point { x: number; y: number; dydx?: number; };
