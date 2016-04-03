@@ -3,6 +3,7 @@
 const API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
 export function pollWeatherData(cityName: String): Promise<WeatherData> {
+  cityName = cityName.trim();
   let forecastUrl = "http://api.openweathermap.org/data/2.5/forecast?q="
     + cityName
     + "&type=like&units=metric&APPID=" + API_KEY;
@@ -40,18 +41,14 @@ function validateResponse(response: any) {
     console.log("weatherAPI status code : " + response.status);
     throw new Error("Error fetching weather data");
   }
-  let json = response.json();
-  if (!json.city) {
-    throw new Error("City not found");
-  }
-  return json;
+  return response.json();
 }
 
 export class WeatherData {
   public cityName: string;
   public countryName: string;
-  public forecasts: WeatherDatum[];
-  public current: WeatherDatum;
+  public list: WeatherDatum[];
+  public days: WeatherDatum[][];
   public sunriseTime: Date;
   public sunsetTime: Date;
 
@@ -60,8 +57,14 @@ export class WeatherData {
     this.countryName = forecast.city.country;
     this.sunriseTime = new Date(current.sys.sunrise * 1000);
     this.sunsetTime = new Date(current.sys.sunset * 1000);
-    this.current = this.parseDatum(current);
-    this.forecasts = forecast.list.map(this.parseDatum);
+    this.list = [this.parseDatum(current)].concat(forecast.list.map(this.parseDatum));
+    this.days = [];
+    let day = this.list[0].date.getDate();
+    let matchDay = (datum) => datum.date.getDate() === day;
+    while (this.list.some(matchDay)) {
+      this.days.push(this.list.filter(matchDay));
+      day++;
+    }
   }
 
   private parseDatum(datum: any): WeatherDatum {
@@ -76,8 +79,8 @@ export class WeatherData {
       cloudCoverage: datum.clouds.all,
       windSpeed: datum.wind.speed,
       windDirection: datum.wind.deg,
-      rain: datum.rain.hasOwnProperty("3h") ? datum.rain["3h"] : 0,
-      snow: datum.hasOwnProperty("3h") ? datum.snow["3h"] : 0
+      rain: datum.rain ? datum.rain.hasOwnProperty("3h") ? datum.rain["3h"] : 0 : 0,
+      snow: datum.snow ? datum.snow.hasOwnProperty("3h") ? datum.snow["3h"] : 0 : 0
     };
   }
 }

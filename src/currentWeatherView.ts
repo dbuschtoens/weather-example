@@ -15,10 +15,10 @@ export default class CurrentWeatherView extends tabris.Composite {
     super(properties);
     let data = properties.data;
     this.createCityNameText(data.cityName + ", " + data.countryName).appendTo(this);
-    this.createText(days[data.current.date.getDay()] + " " + data.current.date.getDate()).appendTo(this);
-    this.createItalicText(data.current.date.getHours() + ":00").appendTo(this);
-    this.createWeatherIcon(data.current.weatherIcon).appendTo(this);
-    this.createTemperatureText(Math.round(data.current.temperature)).appendTo(this);
+    this.createText(days[data.list[0].date.getDay()] + " " + data.list[0].date.getDate()).appendTo(this);
+    this.createItalicText(data.list[0].date.getHours() + ":00").appendTo(this);
+    this.createWeatherIcon(data.list[0].weatherIcon).appendTo(this);
+    this.createTemperatureText(Math.round(data.list[0].temperature)).appendTo(this);
   }
   createCityNameText(text: string) {
     return new tabris.TextView({

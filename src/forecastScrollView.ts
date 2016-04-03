@@ -18,9 +18,9 @@ export default class ForecastScrollView extends tabris.ScrollView {
     properties.direction = "horizontal";
     super(properties);
     let data = properties.data;
-    this.createForecastBox(data.forecasts[0]).set("left", 0).appendTo(this);
-    for (let index = 1; index < data.forecasts.length; index++) {
-      this.createForecastBox(data.forecasts[index], data.forecasts[index - 1]).appendTo(this);
+    this.createForecastBox(data.list[0]).set("left", 0).appendTo(this);
+    for (let index = 1; index < data.list.length; index++) {
+      this.createForecastBox(data.list[index], data.list[index - 1]).appendTo(this);
     }
   }
 

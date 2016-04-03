@@ -48,10 +48,9 @@ export default class WeatherGraph extends tabris.Canvas {
     this.set("width", width);
   }
   private initScale() {
-    let minTime = this.data.current.date.getTime();
-    let maxTime = this.data.forecasts[this.data.forecasts.length - 1].date.getTime();
-    let temperatures = this.data.forecasts.map((forcast) => forcast.temperature)
-      .concat(this.data.current.temperature);
+    let minTime = this.data.list[0].date.getTime();
+    let maxTime = this.data.list[this.data.list.length - 1].date.getTime();
+    let temperatures = this.data.list.map((forcast) => forcast.temperature);
     let maxTemp = Math.max(...temperatures);
     let minTemp = Math.min(...temperatures);
     let meanTemp = (maxTemp + minTemp) / 2;
@@ -167,9 +166,7 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private drawTemperatureCurve(ctx: any) {
-    let points: Point[] = [{ x: this.data.current.date.getTime(), y: this.data.current.temperature }]
-      .concat(this.data.forecasts.map((forecast) =>
-        ({ x: forecast.date.getTime(), y: forecast.temperature })));
+    let points: Point[] = this.data.list.map((forecast) => ({ x: forecast.date.getTime(), y: forecast.temperature }));
     for (let i = 1; i < points.length - 1; i++) {
       points[i].dydx = this.estimateDerivative(points[i - 1], points[i], points[i + 1]);
     }
