@@ -14,7 +14,7 @@ export default class CurrentWeatherView extends tabris.Composite {
     constructor(properties: CurrentWeatherViewProperties) {
     super(properties);
     let data = properties.data;
-    this.createCityNameText(data.cityName + ", " + data.countryName).appendTo(this);
+    // this.createCityNameText(data.cityName + ", " + data.countryName).appendTo(this);
     this.createText(days[data.list[0].date.getDay()] + " " + data.list[0].date.getDate()).appendTo(this);
     this.createItalicText(data.list[0].date.getHours() + ":00").appendTo(this);
     this.createWeatherIcon(data.list[0].weatherIcon).appendTo(this);

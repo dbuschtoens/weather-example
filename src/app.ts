@@ -21,44 +21,69 @@ let scrollView = new tabris.ScrollView({
 });
 scrollView.appendTo(page);
 
-tabris.device.on("change:orientation", () => {
-  console.error("CHAAAANGE");
-};
-)
+/*let citySelector = new tabris.TextInput({
+  top: 0,
+  centerX: 0,
+  message: "Test",
+  font: "bold 32px"
+}).on("accept", (widget) => {
+  console.error("accept");
+}).on("blur", (widget) => {
+  console.error("blur");
+}).on("change:text", (widget) => {
+  console.error("change:text");
+}).on("focus", (widget) => {
+  console.error("focus");
+}).on("input", (widget) => {
+  console.error("input");
+}).appendTo(scrollView);*/
+let citySelector = createCitySelector().appendTo(scrollView)
+let currentWeatherInformation: tabris.Composite;
 
-createCitySelector().appendTo(scrollView);
 
 function drawNewCity(data: WeatherData) {
+  citySelector.set("text", data.cityName + ", " + data.countryName);
+  if (currentWeatherInformation) currentWeatherInformation.dispose();
+  currentWeatherInformation = <tabris.Composite>createWeatherInformation(data).appendTo(scrollView);
+}
+
+function createWeatherInformation(data: WeatherData) {
+  let weatherInformationComposite = new tabris.Composite({
+    top: "prev()",
+    left: 0,
+    right: 0
+  })
   new CurrentWeatherView({
     data: data,
     top: 0,
     left: 0,
-    right: 0,
-  }).appendTo(scrollView);
-  let graph = new Graph({
+    right: 0
+  }).appendTo(weatherInformationComposite);
+  let graph = <Graph>new Graph({
     data: data,
     top: "prev()",
     left: 0
-  }).appendTo(scrollView);
+  }).appendTo(weatherInformationComposite);
   new tabris.Button({
     top: "prev()",
     text: "<->"
   }).on("select", () => {
     graph.zoom(1.2);
-  }).appendTo(scrollView);
+  }).appendTo(weatherInformationComposite);
   new tabris.Button({
     top: "prev()",
     text: ">-<"
   }).on("select", () => {
     graph.zoom(0.8);
-  }).appendTo(scrollView);
+  }).appendTo(weatherInformationComposite);
   new ForecastScrollView({
     data: data,
     top: "prev()",
     left: 0,
     right: 0,
     bottom: 0
-  }).appendTo(scrollView);
+  }).appendTo(weatherInformationComposite);
+  return weatherInformationComposite;
 }
 
 function createBackground() {
@@ -72,6 +97,26 @@ function createBackground() {
 
 function createCitySelector() {
   return new tabris.TextInput({
+    top: 0,
+    centerX: 0,
+    message: "enter city",
+    textColor: "#FFFFFF",
+    font: "bold 32px"
+  }).on("focus", (widget) => {
+    widget.set("text", "");
+  }).on("accept", (widget, text) => {
+    let activityIndicator = new tabris.ActivityIndicator({ centerX: 0, centerY: 0 }).appendTo(page);
+    pollWeatherData(text)
+      .then(drawNewCity)
+      .catch((error) => {
+        console.error(error);
+        widget.set("text", "");
+      }).then(() => activityIndicator.dispose());
+  });
+}
+
+function oldCitySelector() {
+  return new tabris.TextInput({
     centerX: 0,
     message: "enter city"
   }).on("accept", (widget, text) => {
@@ -82,7 +127,7 @@ function createCitySelector() {
       .catch((error) => {
         console.error(error);
         widget.set("text", "");
-      }).then(() => activityIndicator.dispose())
+      }).then(() => activityIndicator.dispose());
   });
 }
 
