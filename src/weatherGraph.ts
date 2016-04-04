@@ -7,8 +7,8 @@ const uiFont = "12px sans-serif";
 const uiLineColor = "rgba(20,20,20,0.3)";
 const uiLineWidth = 2;
 const uiTextColor = "rgba(20,20,20,0.5)";
-const minHorizontalDistance = 35;
-const minVerticalDistance = 20;
+const minHorizontalDistance = 33;
+const minVerticalDistance = 25;
 const graphLineColor = "rgba(20,20,20,0.7)";
 const nightColor = "rgba(0,0,60,0.3)";
 const dayColor = "rgba(255,187,69,0.3)";
@@ -46,7 +46,11 @@ export default class WeatherGraph extends tabris.Canvas {
     if ((newMax - newMin) >= (maxTime - minTime)) {
       [newMin, newMax] = [minTime, maxTime];
     };
-    [this.scale.minX, this.scale.maxX] = [newMin, newMax];
+    this.setScale(new Date(newMin), new Date(newMax));
+  }
+
+  public setScale(newMin: Date, newMax: Date) {
+    [this.scale.minX, this.scale.maxX] = [newMin.getTime(), newMax.getTime()];
     this.initDataPoints();
     this.draw();
   }
@@ -161,17 +165,19 @@ export default class WeatherGraph extends tabris.Canvas {
     ctx.lineWidth = uiLineWidth;
     ctx.fillStyle = uiTextColor;
     ctx.font = uiFont;
-    let minDay = Math.ceil(this.scale.minX / dayLength) * dayLength;
+    let minDay = new Date(this.scale.minX).setHours(0, 0, 0, 0);
+    minDay += (minDay === this.scale.minX) ? 0 : dayLength;
     for (let day = minDay; day < this.scale.maxX; day += dayLength) {
       this.drawVerticalLine(ctx, day, 12);
       this.drawDayLabel(ctx, day);
     }
     let hourWidth = this.getX(this.scale.minX + hourLength) - this.getX(this.scale.minX);
-    let hourStep = (2 * hourWidth > minHorizontalDistance) ? 2 * hourLength
-      : (6 * hourWidth > minHorizontalDistance) ? 6 * hourLength : undefined;
+    let hourStep = (2 * hourWidth > minHorizontalDistance) ? 2
+      : (6 * hourWidth > minHorizontalDistance) ? 6 : undefined;
     if (hourStep) {
-      let minHour = Math.ceil(this.scale.minX / hourStep) * hourStep;
-      for (let hour = minHour; hour < this.scale.maxX; hour += hourStep) {
+      let minHour = Math.ceil((new Date(this.scale.minX).getHours() + 1) / hourStep) * hourStep;
+      let hour = new Date(this.scale.minX).setHours(minHour, 0, 0, 0);
+      for (; hour < this.scale.maxX; hour += hourStep * hourLength) {
         this.drawVerticalLine(ctx, hour, 0);
         this.drawHourLabel(ctx, hour);
       }
