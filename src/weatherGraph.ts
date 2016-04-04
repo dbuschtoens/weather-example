@@ -69,20 +69,10 @@ export default class WeatherGraph extends tabris.Canvas {
     let firstIndex = this.data.list.indexOf(this.dataPoints[0]);
     let lastIndex = this.data.list.indexOf(this.dataPoints[this.dataPoints.length - 1]);
     if (firstIndex > 0) {
-      let firstDataPoint = WeatherData.linearInterpolate(
-        this.data.list[firstIndex - 1],
-        this.data.list[firstIndex],
-        this.scale.minX
-      );
-      this.dataPoints.unshift(firstDataPoint);
+      this.dataPoints.unshift(this.data.getWeatherAtDate(new Date(this.scale.minX)));
     }
     if (lastIndex < this.data.list.length - 1) {
-      let lastDataPoint = WeatherData.linearInterpolate(
-        this.data.list[lastIndex],
-        this.data.list[lastIndex + 1],
-        this.scale.maxX
-      );
-      this.dataPoints.push(lastDataPoint);
+            this.dataPoints.push(this.data.getWeatherAtDate(new Date(this.scale.maxX)));
     }
   }
 
