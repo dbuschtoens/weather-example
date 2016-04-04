@@ -44,7 +44,7 @@ function validateResponse(response: any) {
   return response.json().then(validateJson);
 }
 
-function validateJson (json: any) {
+function validateJson(json: any) {
   if (json.cod !== 200 && json.cod !== "200") {
     throw new Error(json.message);
   }
@@ -74,7 +74,23 @@ export class WeatherData {
     }
   }
 
-  public getWeatherAtDate(date: Date) {
+  static getAverageWeatherDescription(day: WeatherDatum[]): string {
+    let weather = "";
+
+    if (day.filter((forecast) => (forecast.weather === "Clouds")).length >= 3) {
+      weather += "cloudy, ";
+    }
+    if (day.some((forecast) => (forecast.weather === "Rain"))) {
+      if (day.filter((forecast) => (forecast.weather === "Rain")).length <= 3) {
+        if (weather === "") weather = "clear, ";
+        weather += "some ";
+      }
+      weather += "rain ";
+    }
+    if (weather === "") weather = "clear";
+    return weather;
+  }
+  public getWeatherAtDate(date: Date): WeatherDatum {
     if (date < this.list[0].date) {
       return this.list[0];
     }
@@ -85,6 +101,7 @@ export class WeatherData {
     }
     return this.list[this.list.length - 1];
   }
+
 
   private linearInterpolate(previous: WeatherDatum, next: WeatherDatum, time: number): WeatherDatum {
     let [prevTime, nextTime] = [previous.date.getTime(), next.date.getTime()];
