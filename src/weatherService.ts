@@ -41,7 +41,14 @@ function validateResponse(response: any) {
     console.log("weatherAPI status code : " + response.status);
     throw new Error("Error fetching weather data");
   }
-  return response.json();
+  return response.json().then(validateJson);
+}
+
+function validateJson (json: any) {
+  if (json.cod !== 200 && json.cod !== "200") {
+    throw new Error(json.message);
+  }
+  return json;
 }
 
 export class WeatherData {
