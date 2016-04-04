@@ -1,20 +1,20 @@
 /// <reference path="../typings/browser.d.ts" />
 
-import {WeatherData} from "./weatherService";
+import {WeatherData, WeatherDatum} from "./weatherService";
 
 const daysNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const uiFont = "12px sans-serif";
 const uiLineColor = "rgba(20,20,20,0.3)";
 const uiLineWidth = 2;
 const uiTextColor = "rgba(20,20,20,0.5)";
-const minHorizontalDistance = 50;
-const minVerticalDistance = 50;
+const minHorizontalDistance = 35;
+const minVerticalDistance = 20;
 const graphLineColor = "rgba(20,20,20,0.7)";
 const nightColor = "rgba(0,0,60,0.3)";
 const dayColor = "rgba(255,187,69,0.3)";
-const lengthHour = 60 * 60 * 1000;
-const lengthDay = 24 * 60 * 60 * 1000;
-const margins = { top: 20, left: 30, bottom: 10, right: 10 };
+const hourLength = 60 * 60 * 1000;
+const dayLength = 24 * 60 * 60 * 1000;
+const margins = { top: 20, left: 30, bottom: 13, right: 10 };
 const maxZoom = 5;
 
 interface WeatherGraphProperties extends tabris.CanvasProperties {
@@ -23,6 +23,7 @@ interface WeatherGraphProperties extends tabris.CanvasProperties {
 
 export default class WeatherGraph extends tabris.Canvas {
   private scale: { minX: number, maxX: number, minY: number, maxY: number };
+  private dataPoints: WeatherDatum[];
   private data: WeatherData;
 
   constructor(properties: WeatherGraphProperties) {
@@ -30,29 +31,61 @@ export default class WeatherGraph extends tabris.Canvas {
     this.data = properties.data;
     this.initScale();
     this.setCanvasBounds();
+    this.initDataPoints();
     this.draw();
   }
 
   public zoom(factor: number) {
-    console.error("zoom " + factor);
-    let screenWidth = tabris.device.get("screenWidth");
-    let currentWidth = this.get("width");
-    let newWidth = Math.min(Math.max(screenWidth, currentWidth * factor), maxZoom * screenWidth);
-    this.setCanvasBounds(newWidth);
+    let meanTime = (this.scale.maxX + this.scale.minX) / 2;
+    let halfRange = this.scale.maxX - meanTime;
+    let [newMin, newMax] = [meanTime - (halfRange * factor), meanTime + (halfRange * factor)];
+    let [minTime, maxTime] = [this.data.list[0].date.getTime(), this.data.list[this.data.list.length - 1].date.getTime()];
+    let offset = newMin < minTime ? minTime - newMin : newMax > maxTime ? maxTime - newMax : 0;
+    newMin += offset;
+    newMax += offset;
+    if ((newMax - newMin) >= (maxTime - minTime)) {
+      [newMin, newMax] = [minTime, maxTime];
+    };
+    [this.scale.minX, this.scale.maxX] = [newMin, newMax];
+    this.initDataPoints();
     this.draw();
   }
+
   private setCanvasBounds(width?: number) {
     let height = tabris.device.get("screenHeight") / 3;
     if (!width) width = tabris.device.get("screenWidth");
     this.set("height", height);
     this.set("width", width);
   }
-  private initScale() {
-    let minTime = this.data.list[0].date.getTime();
-    let maxTime = this.data.list[this.data.list.length - 1].date.getTime();
+
+  private initDataPoints() {
+    this.dataPoints = this.data.list.filter((datum) =>
+      (datum.date.getTime() > this.scale.minX && datum.date.getTime() < this.scale.maxX)
+    );
+    let firstIndex = this.data.list.indexOf(this.dataPoints[0]);
+    let lastIndex = this.data.list.indexOf(this.dataPoints[this.dataPoints.length - 1]);
+    if (firstIndex > 0) {
+      let firstDataPoint = WeatherData.linearInterpolate(
+        this.data.list[firstIndex - 1],
+        this.data.list[firstIndex],
+        this.scale.minX
+      );
+      this.dataPoints.unshift(firstDataPoint);
+    }
+    if (lastIndex < this.data.list.length - 1) {
+      let lastDataPoint = WeatherData.linearInterpolate(
+        this.data.list[lastIndex],
+        this.data.list[lastIndex + 1],
+        this.scale.maxX
+      );
+      this.dataPoints.push(lastDataPoint);
+    }
+  }
+
+  private initScale(horizontal?: { min: number, max: number }, vertical?: { min: number, max: number }) {
+    let [minTime, maxTime] = [this.data.list[0].date.getTime(), this.data.list[this.data.list.length - 1].date.getTime()];
     let temperatures = this.data.list.map((forcast) => forcast.temperature);
-    let maxTemp = Math.max(...temperatures);
-    let minTemp = Math.min(...temperatures);
+    let [minTemp, maxTemp] = [Math.min(...temperatures), Math.max(...temperatures)];
     let meanTemp = (maxTemp + minTemp) / 2;
     let tempScaleFactor = 1.2;
     this.scale = {
@@ -72,12 +105,13 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private drawBackground(ctx: any) {
-    let sunriseTime = this.data.sunriseTime.getTime();
-    let sunsetTime = this.data.sunsetTime.getTime();
     let now = this.scale.minX;
+    let dayOffset = new Date(now).getDate() - this.data.list[0].date.getDate();
+    let sunriseTime = this.data.sunriseTime.getTime() + dayOffset * dayLength;
+    let sunsetTime = this.data.sunsetTime.getTime() + dayOffset * dayLength;
     let isDay = (sunriseTime < now && now < sunsetTime);
-    sunriseTime += (now > sunriseTime) ? lengthDay : 0;
-    sunsetTime += (now > sunsetTime) ? lengthDay : 0;
+    sunriseTime += (now > sunriseTime) ? dayLength : 0;
+    sunsetTime += (now > sunsetTime) ? dayLength : 0;
     let startTime = Math.min(sunriseTime, sunsetTime);
     let endTime = Math.max(sunriseTime, sunsetTime);
 
@@ -86,7 +120,7 @@ export default class WeatherGraph extends tabris.Canvas {
     while (endTime < this.scale.maxX) {
       this.drawArea(ctx, startTime, endTime, isDay ? dayColor : nightColor);
       isDay = !isDay;
-      [startTime, endTime] = [endTime, startTime + lengthDay];
+      [startTime, endTime] = [endTime, startTime + dayLength];
     }
     this.drawArea(ctx, startTime, this.scale.maxX, isDay ? dayColor : nightColor);
   }
@@ -101,7 +135,7 @@ export default class WeatherGraph extends tabris.Canvas {
   };
 
   private drawTemperatureScale(ctx: any) {
-    let degreeHeight = this.getY(this.scale.minY + 1) - this.getY(this.scale.minY);
+    let degreeHeight = this.getY(this.scale.minY) - this.getY(this.scale.minY + 1);
     let degreeStep = (degreeHeight > minVerticalDistance) ? 1
       : (2 * degreeHeight > minVerticalDistance) ? 2 : 5;
     let minHeight = Math.ceil(this.scale.minY / degreeStep) * degreeStep;
@@ -127,14 +161,14 @@ export default class WeatherGraph extends tabris.Canvas {
     ctx.lineWidth = uiLineWidth;
     ctx.fillStyle = uiTextColor;
     ctx.font = uiFont;
-    let minDay = Math.ceil(this.scale.minX / lengthDay) * lengthDay;
-    for (let day = minDay; day < this.scale.maxX; day += lengthDay) {
+    let minDay = Math.ceil(this.scale.minX / dayLength) * dayLength;
+    for (let day = minDay; day < this.scale.maxX; day += dayLength) {
       this.drawVerticalLine(ctx, day, 12);
       this.drawDayLabel(ctx, day);
     }
-    let hourWidth = this.getX(this.scale.minX + lengthHour) - this.getX(this.scale.minX);
-    let hourStep = (2 * hourWidth > minHorizontalDistance) ? 2 * lengthHour
-      : (6 * hourWidth > minHorizontalDistance) ? 6 * lengthHour : undefined;
+    let hourWidth = this.getX(this.scale.minX + hourLength) - this.getX(this.scale.minX);
+    let hourStep = (2 * hourWidth > minHorizontalDistance) ? 2 * hourLength
+      : (6 * hourWidth > minHorizontalDistance) ? 6 * hourLength : undefined;
     if (hourStep) {
       let minHour = Math.ceil(this.scale.minX / hourStep) * hourStep;
       for (let hour = minHour; hour < this.scale.maxX; hour += hourStep) {
@@ -166,7 +200,7 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private drawTemperatureCurve(ctx: any) {
-    let points: Point[] = this.data.list.map((forecast) => ({ x: forecast.date.getTime(), y: forecast.temperature }));
+    let points: Point[] = this.dataPoints.map((forecast) => ({ x: forecast.date.getTime(), y: forecast.temperature }));
     for (let i = 1; i < points.length - 1; i++) {
       points[i].dydx = this.estimateDerivative(points[i - 1], points[i], points[i + 1]);
     }
@@ -204,8 +238,8 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private drawPoint(ctx: any, point: Point) {
-    ctx.strokeStyle = graphLineColor;
-    ctx.strokeRect(this.getX(point.x) - 3, this.getY(point.y) - 3, 6, 6);
+    ctx.fillStyle = graphLineColor;
+    ctx.fillRect(this.getX(point.x) - 2, this.getY(point.y) - 2, 4, 4);
   }
 
   private getX(time: number): number {

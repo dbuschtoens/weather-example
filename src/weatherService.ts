@@ -67,6 +67,26 @@ export class WeatherData {
     }
   }
 
+  static linearInterpolate(previous: WeatherDatum, next: WeatherDatum, time: number): WeatherDatum {
+    let [prevTime, nextTime] = [previous.date.getTime(), next.date.getTime()];
+    let a = (time - prevTime) / (nextTime - prevTime);
+    return {
+      date: new Date(time),
+      weather: (a < 0.5) ? previous.weather : next.weather,
+      weatherDetailed: (a < 0.5) ? previous.weatherDetailed : next.weatherDetailed,
+      weatherIcon: (a < 0.5) ? previous.weatherIcon : next.weatherIcon,
+      temperature: previous.temperature + a * (next.temperature - previous.temperature),
+      pressure: previous.pressure + a * (next.pressure - previous.pressure),
+      humidity: previous.humidity + a * (next.humidity - previous.humidity),
+      cloudCoverage: previous.cloudCoverage + a * (next.cloudCoverage - previous.cloudCoverage),
+      windSpeed: previous.windSpeed + a * (next.windSpeed - previous.windSpeed),
+      windDirection: previous.windDirection + a * (next.windDirection - previous.windDirection),
+      rain: previous.rain + a * (next.rain - previous.rain),
+      snow: previous.snow + a * (next.snow - previous.snow),
+    }
+  }
+
+
   private parseDatum(datum: any): WeatherDatum {
     return {
       date: new Date(datum.dt * 1000),
