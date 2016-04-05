@@ -30,7 +30,6 @@ export default class WeatherGraph extends tabris.Canvas {
     super(properties);
     this.data = properties.data;
     this.initScale();
-    this.setCanvasBounds();
     this.initDataPoints();
     this.draw();
   }
@@ -55,13 +54,14 @@ export default class WeatherGraph extends tabris.Canvas {
     this.draw();
   }
 
-  private setCanvasBounds(width?: number) {
-    let height = tabris.device.get("screenHeight") / 3;
-    if (!width) width = tabris.device.get("screenWidth");
-    this.set("height", height);
-    this.set("width", width);
+  public draw() {
+    let ctx = <any>this.getContext("2d", this.get("width"), this.get("height"));
+    this.drawBackground(ctx);
+    this.drawTemperatureScale(ctx);
+    this.drawTimeScale(ctx);
+    this.drawTemperatureCurve(ctx);
   }
-
+  
   private initDataPoints() {
     this.dataPoints = this.data.list.filter((datum) =>
       (datum.date.getTime() > this.scale.minX && datum.date.getTime() < this.scale.maxX)
@@ -72,7 +72,7 @@ export default class WeatherGraph extends tabris.Canvas {
       this.dataPoints.unshift(this.data.getWeatherAtDate(new Date(this.scale.minX)));
     }
     if (lastIndex < this.data.list.length - 1) {
-            this.dataPoints.push(this.data.getWeatherAtDate(new Date(this.scale.maxX)));
+      this.dataPoints.push(this.data.getWeatherAtDate(new Date(this.scale.maxX)));
     }
   }
 
@@ -90,13 +90,6 @@ export default class WeatherGraph extends tabris.Canvas {
     };
   }
 
-  private draw() {
-    let ctx = <any>this.getContext("2d", this.get("width"), this.get("height"));
-    this.drawBackground(ctx);
-    this.drawTemperatureScale(ctx);
-    this.drawTimeScale(ctx);
-    this.drawTemperatureCurve(ctx);
-  }
 
   private drawBackground(ctx: any) {
     let now = this.scale.minX;
@@ -121,7 +114,9 @@ export default class WeatherGraph extends tabris.Canvas {
 
   private drawArea(ctx: any, startTime: number, endTime: number, color: string) {
     ctx.fillStyle = color;
+    // let graphHeight = this.get("bounds").height - margins.top - margins.bottom;
     let graphHeight = this.get("height") - margins.top - margins.bottom;
+
     ctx.fillRect(this.getX(startTime),
       this.getY(this.scale.maxY),
       this.getX(endTime) - this.getX(startTime),
@@ -239,13 +234,16 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private getX(time: number): number {
+    // let graphWidth = this.get("bounds").width - margins.left - margins.right;
     let graphWidth = this.get("width") - margins.left - margins.right;
     let ratio = (time - this.scale.minX) / (this.scale.maxX - this.scale.minX);
     return margins.left + (graphWidth * ratio);
   }
 
   private getY(temperature: number): number {
+    // let graphHeight = this.get("bounds").height - margins.top - margins.bottom;
     let graphHeight = this.get("height") - margins.top - margins.bottom;
+    // console.log(this.get("bounds").height);
     let ratio = (temperature - this.scale.minY) / (this.scale.maxY - this.scale.minY);
     return margins.top + graphHeight * (1 - ratio);
   }
