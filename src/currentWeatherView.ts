@@ -4,21 +4,31 @@ import {WeatherData} from "./weatherService";
 const textColor = "rgb(255, 255,255)";
 const MARGIN = 8;
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const smallFont = "15px";
+const smallFont = "thin 19px sans-serif";
+const smallFontItalic = "italic thin 19px sans-serif";
+const bigFont = "thin 28px sans-serif";
 
 interface CurrentWeatherViewProperties extends tabris.CompositeProperties {
   data: WeatherData;
 }
 
 export default class CurrentWeatherView extends tabris.Composite {
-    constructor(properties: CurrentWeatherViewProperties) {
+  private font: string;
+  private iconSize: number;
+  
+  constructor(properties: CurrentWeatherViewProperties) {
     super(properties);
     let data = properties.data;
-    // this.createCityNameText(data.cityName + ", " + data.countryName).appendTo(this);
-    this.createText(days[data.list[0].date.getDay()] + " " + data.list[0].date.getDate()).appendTo(this);
-    this.createItalicText(data.list[0].date.getHours() + ":00").appendTo(this);
-    this.createWeatherIcon(data.list[0].weatherIcon).appendTo(this);
-    this.createTemperatureText(Math.round(data.list[0].temperature)).appendTo(this);
+    let height = Math.max(200, <number>properties.height);
+    this.font = "thin " + (height * 0.5) + "px sans-serif";
+    this.iconSize = height * 0.5;
+    let centerBox = new tabris.Composite({
+      top: 0,
+      centerX: 0
+    }).appendTo(this);
+    this.createWeatherIcon(data.list[0].weatherIcon).appendTo(centerBox);
+    this.createTemperatureText(Math.round(data.list[0].temperature)).appendTo(centerBox);
+    this.createWeatherText(data.list[0].weatherDetailed).appendTo(this);
   }
   createCityNameText(text: string) {
     return new tabris.TextView({
@@ -49,22 +59,31 @@ export default class CurrentWeatherView extends tabris.Composite {
   }
   createWeatherIcon(icon: string) {
     return new tabris.ImageView({
-      top: "prev()",
-      centerX: 0,
-      width: 100,
-      height: 100,
+      centerY: 0,
+      width: this.iconSize,
+      height: this.iconSize,
       scaleMode: "stretch",
       image: "/icons/" + icon + ".png"
     });
   }
   createTemperatureText(temperature: number) {
     return new tabris.TextView({
-      top: "prev()",
-      centerX: 0,
+      centerY: 0,
+      left: "prev()",
       text: Math.round(temperature) + "°C",
       textColor: textColor,
-      font: "bold 48px"
+      font: this.font
     });
+  }
+  
+  createWeatherText(text: string) {
+    return new tabris.TextView({
+      top: "prev()",
+      centerX: 0,
+      text: text,
+      textColor: textColor,
+      font: bigFont
+    })
   }
 }
 

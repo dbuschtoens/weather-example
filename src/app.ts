@@ -9,7 +9,7 @@ tabris.ui.set("toolbarVisible", false);
 let page = new tabris.Page({
   title: "Weather Forecast",
   topLevel: true,
-   background: "rgb(75,115,173)"
+  background: "rgb(75,115,173)"
 });
 
 let scrollView = new tabris.ScrollView({
@@ -21,7 +21,7 @@ let scrollView = new tabris.ScrollView({
 createCitySelector().appendTo(scrollView);
 let currentWeatherInformation: tabris.Composite;
 let currentCityName = "";
- pollWeatherData("Karlsruhe").then(drawNewCity);
+pollWeatherData("Karlsruhe").then(drawNewCity);
 
 function drawNewCity(data: WeatherData) {
   if (currentWeatherInformation && !currentWeatherInformation.isDisposed()) currentWeatherInformation.dispose();
@@ -33,22 +33,19 @@ function createWeatherInformation(data: WeatherData) {
     top: "prev()",
     left: 0,
     right: 0,
-    bottom: 0,
-    // background: "rgba(0,0,255,0.5)"
   }).appendTo(scrollView);
   let currentWeatherView = new CurrentWeatherView({
     data: data,
     top: 0,
     left: 0,
     right: 0,
-    background: "red"
-  })
+    height: 200,
+  }).appendTo(weatherInformationComposite);
   let forecastScrollView = new ForecastScrollView({
     data: data,
     top: "prev()",
     left: 0,
     right: 0,
-  //  background: "rgba(255,0,0,0.5)"
   }).appendTo(weatherInformationComposite);
   let graph = new Graph({
     data: data,
@@ -56,32 +53,19 @@ function createWeatherInformation(data: WeatherData) {
     right: 0,
     height: tabris.device.get("screenHeight") / 3,
     width: tabris.device.get("screenWidth"),
-  //  background: "rgba(0,255,0,0.5)"
   }).appendTo(weatherInformationComposite);
-
-  /*tabris.device.on("change:orientation", (device, orientation) => {
+  tabris.device.on("change:orientation", (device, orientation) => {
     switch (orientation) {
       case "portrait-primary":
       case "portrait-secondary":
-        graph.set({
-          width: tabris.device.get("screenWidth"),
-          height: tabris.device.get("screenHeight") / 3
-        });
-        forecastScrollView.set({ top: "prev()", left: 0, right: 0, bottom: 0 });
-        graph.draw();
+        scrollView.set("width", tabris.device.get("screenWidth"));
         break;
       case "landscape-primary":
       case "landscape-secondary":
-        graph.set({
-          width: (tabris.device.get("screenWidth") / 2),
-          height: tabris.device.get("screenHeight")
-        });
-        forecastScrollView.set({ top: 0, left: 0, bottom: 0, right: undefined, width: (tabris.device.get("screenWidth") / 2) });
-        graph.draw();
+        scrollView.set("width", tabris.device.get("screenWidth") / 2);
         break;
     }
-  });*/
-  console.log("totalbounds after scroll: " + JSON.stringify(weatherInformationComposite.get("bounds")));
+  });
   return weatherInformationComposite;
 }
 
