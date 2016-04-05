@@ -3,7 +3,8 @@ import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255,255)";
 const margin = 8;
 const innerMargin = 8;
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const daysAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const smallFont = "thin 19px sans-serif";
 const smallFontItalic = "italic thin 19px sans-serif";
 const bigFont = "thin 28px sans-serif";
@@ -16,62 +17,75 @@ interface ForecastScrollViewProperties extends tabris.CompositeProperties {
 }
 
 export default class ForecastScrollView extends tabris.Composite {
+  private tabs: tabris.Tab[];
   private scrollView: tabris.ScrollView;
+  private tabFolder: tabris.TabFolder;
 
   constructor(properties: ForecastScrollViewProperties) {
     super(properties);
     let data = properties.data;
-    this.createHeader("Overview").appendTo(this);
-    this.scrollView = <tabris.ScrollView>new tabris.ScrollView({ top: "prev()", left: 0, right: 0, bottom: 0 }).appendTo(this);
-    // this.createTextExamples();
-
-    this.createDayForecastBox(data.days[0]).set("top", 0).appendTo(this.scrollView);
-    for (let index = 1; index < data.days.length; index++) {
-      this.createDayForecastBox(data.days[index]).appendTo(this.scrollView);
-    }
-    for (let index = 0; index < data.list.length; index++) {
-      this.createForecastBox(data.list[index]).appendTo(this.scrollView);
-    }
-
-  }
-
-createTextExamples() {
-    let fontStyles = ["normal", "italic"];
-    let fontWeights = ["light", "thin", "normal", "medium", "bold", "black"];
-    let fontFamilies = ["serif", "sans-serif", "condensed", "monospace"];
-    for (let style of fontStyles) {
-      for (let weight of fontWeights) {
-        for (let family of fontFamilies) {
-          this.createTextExample(style + " " + weight + " 20px " + family).appendTo(this.scrollView);
-        }
-      }
+    this.tabFolder = <tabris.TabFolder>new tabris.TabFolder({
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      tabBarLocation: "hidden",
+      paging: true
+    }).appendTo(this);
+    this.tabs = [];
+    for (let index = 0; index <= data.days.length; index++) {
+      this.tabs[index] = new tabris.Tab({});
+      this.createForecastTab(data, index).appendTo(this.tabs[index]);
+      this.tabFolder.append(this.tabs[index]);
     }
   }
 
-  createTextExample(text: string) {
-    let [r, g, b] = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
+  createForecastTab(data: WeatherData, tab: number) {
+    if (tab === 1) {
+      return this.createForecastOverview(data);
+    }
     let container = new tabris.Composite({
-      top: "prev()",
-      left: margin,
-      right: margin
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
     });
-    let forecastBox = <tabris.Composite>new tabris.Composite({
-      top: margin,
-      left: margin,
-      right: margin,
-      background: "rgba(255,255,255, 0.2)"
+    let day = (tab === 0) ? 0 : tab - 1;
+    let headerName = (tab === 0) ? "Current Weather" : dayNames[data.days[day][0].date.getDay()];
+    this.createHeader(headerName).appendTo(container);
+    let scrollView = <tabris.ScrollView>new tabris.ScrollView({
+      top: "prev()",
+      left: 0,
+      right: 0,
+      bottom: 0
     }).appendTo(container);
-    new tabris.TextView({
-      top: innerMargin,
-      left: innerMargin,
-      bottom: innerMargin,
-      text: text,
-      textColor: textColor,
-      font: text
-    }).appendTo(forecastBox);
+    this.createForecastBox(data.days[day][0]).set("top", 0).appendTo(scrollView);
+    for (let index = 1; index < data.days[day].length; index++) {
+      this.createForecastBox(data.days[day][index]).appendTo(scrollView);
+    }
     return container;
   }
-  
+  createForecastOverview(data: WeatherData) {
+    let container = new tabris.Composite({
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    });
+    this.createHeader("Overview").appendTo(container);
+    let scrollView = <tabris.ScrollView>new tabris.ScrollView({
+      top: "prev()",
+      left: 0,
+      right: 0,
+      bottom: 0
+    }).appendTo(container);
+    this.createDayForecastBox(data.days[0]).set("top", 0).appendTo(scrollView);
+    for (let index = 1; index < data.days.length; index++) {
+      this.createDayForecastBox(data.days[index]).appendTo(scrollView);
+    }
+    return container;
+  }
+
   createHeader(text: string) {
     let container = new tabris.Composite({
       top: 0,
@@ -86,6 +100,24 @@ createTextExamples() {
       centerX: 0,
       font: bigFont,
       textColor: "#000000"
+    }).appendTo(container);
+    new tabris.ImageView({
+      image: "./icons/arrowLeft.png",
+      left: 0,
+      centerY: 0,
+      height: 50,
+      highlightOnTouch: true
+    }).on("tap", () => {
+      // todo: change tab
+    }).appendTo(container);
+    new tabris.ImageView({
+      image: "./icons/arrowRight.png",
+      right: 0,
+      centerY: 0,
+      height: 50,
+      highlightOnTouch: true
+    }).on("tap", () => {
+      // todo: change tab
     }).appendTo(container);
     return container;
   }
@@ -115,7 +147,7 @@ createTextExamples() {
       top: innerMargin,
       bottom: innerMargin,
       left: innerMargin,
-      text: days[forecast.date.getDay()], // + " " + forecast.date.getDate(),
+      text: daysAbbreviations[forecast.date.getDay()], // + " " + forecast.date.getDate(),
       textColor: textColor,
       font: bigFont
     });
