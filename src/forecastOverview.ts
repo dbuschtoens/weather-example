@@ -1,12 +1,14 @@
 /// <reference path="../typings/browser.d.ts" />
 import {WeatherData, WeatherDatum} from "./weatherService";
-const textColor = "rgb(255, 255,255)";
+const textColor = "rgb(255, 255, 255)";
+const minTempColor = "rgb(245, 245, 255)";
+const infoBoxColor = "rgba(0, 0, 0, 0.2)";
+
 const margin = 5;
 const innerMargin = 6;
 const daysAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const smallFont = "thin 19px sans-serif";
 const bigFont = "thin 28px sans-serif";
-const infoBoxColor = "rgba(255, 255, 255, 0.2)";
 
 
 
@@ -69,7 +71,7 @@ export default class ForecastOverview extends tabris.Composite {
     new tabris.TextView({
       left: "prev()",
       text: Math.round(minTemp) + "°C",
-      textColor: "rgb(200, 200, 220)",
+      textColor: minTempColor,
       baseline: maxTempText,
       font: smallFont
     }).appendTo(container);

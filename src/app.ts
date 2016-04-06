@@ -4,29 +4,47 @@ import ForecastScrollView from "./forecastScrollView";
 import CurrentWeatherView from "./currentWeatherView";
 import Overview from "./forecastOverview";
 import Graph from "./weatherGraph";
+import BackgroundLayer from "./backgroundLayer";
 
 tabris.ui.set("toolbarVisible", false);
 
 let page = new tabris.Page({
   title: "Weather Forecast",
   topLevel: true,
-  background: "rgb(75,115,173)"
+  background: "rgb(83,100,160)"
 });
 
 let scrollView = new tabris.ScrollView({
   left: 0,
   top: 0,
-  width: tabris.device.get("screenWidth")
+  width: tabris.device.get("screenWidth"),
 }).appendTo(page);
+let background = new BackgroundLayer({
+  top: 0,
+  left: 0,
+  width: 360,
+  height: 1210,
+  // right: 0,
+  // bottom: 0,
+ //  background: "rgba(255,0,0,0.1)"
+}).appendTo(scrollView);
+scrollView.on("scroll", (widget, _offset) => {
+  let offset = <{ x: number, y: number }>_offset;
+  background.scroll(offset.y);
+});
+
+
 
 createCitySelector().appendTo(scrollView);
 let currentWeatherInformation: tabris.Composite;
 let currentCityName = "";
 pollWeatherData("Karlsruhe").then(drawNewCity);
 
+
 function drawNewCity(data: WeatherData) {
   if (currentWeatherInformation && !currentWeatherInformation.isDisposed()) currentWeatherInformation.dispose();
   currentWeatherInformation = createWeatherInformation(data);
+  background.generateNewClouds();
 }
 
 function createWeatherInformation(data: WeatherData) {
@@ -72,6 +90,7 @@ function createWeatherInformation(data: WeatherData) {
         scrollView.set("width", tabris.device.get("screenWidth") / 2);
         break;
     }
+    background.generateNewClouds();
   });
   return weatherInformationComposite;
 }

@@ -1,6 +1,7 @@
 /// <reference path="../typings/browser.d.ts" />
 import {WeatherData, WeatherDatum} from "./weatherService";
-const textColor = "rgb(255, 255,255)";
+const textColor = "rgb(255, 255, 255)";
+const infoBoxColor = "rgba(0, 0, 0, 0.2)";
 const margin = 5;
 const innerMargin = 6;
 const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -134,7 +135,7 @@ export default class ForecastScrollView extends tabris.TabFolder {
       top: margin,
       left: margin,
       right: margin,
-      background: "rgba(255, 255, 255, 0.2)"
+      background: infoBoxColor
     }).appendTo(container);
     this.createTimeText(forecast.date).appendTo(forecastBox);
     this.createWeatherText(forecast.weatherDetailed).appendTo(forecastBox);
