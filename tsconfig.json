@@ -8,8 +8,9 @@
     "typings/browser.d.ts",
     "src/app.ts",
     "src/weatherService.ts",
-    "src/forcastScroll.ts",
-    "src/currentWeather.ts",
+    "src/forcastScrollview.ts",
+    "src/forcastOverview.ts",
+    "src/currentWeatherView.ts",
     "src/weatherGraph.ts"
   ]
 }

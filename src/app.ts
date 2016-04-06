@@ -2,6 +2,7 @@
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
 import ForecastScrollView from "./forecastScrollView";
 import CurrentWeatherView from "./currentWeatherView";
+import Overview from "./forecastOverview";
 import Graph from "./weatherGraph";
 
 tabris.ui.set("toolbarVisible", false);
@@ -25,7 +26,7 @@ pollWeatherData("Karlsruhe").then(drawNewCity);
 
 function drawNewCity(data: WeatherData) {
   if (currentWeatherInformation && !currentWeatherInformation.isDisposed()) currentWeatherInformation.dispose();
-  currentWeatherInformation = createWeatherInformation(data)
+  currentWeatherInformation = createWeatherInformation(data);
 }
 
 function createWeatherInformation(data: WeatherData) {
@@ -41,7 +42,7 @@ function createWeatherInformation(data: WeatherData) {
     right: 0,
     height: 200,
   }).appendTo(weatherInformationComposite);
-  let forecastScrollView = new ForecastScrollView({
+  let overview = new Overview({
     data: data,
     top: "prev()",
     left: 0,
@@ -53,6 +54,12 @@ function createWeatherInformation(data: WeatherData) {
     right: 0,
     height: tabris.device.get("screenHeight") / 3,
     width: tabris.device.get("screenWidth"),
+  }).appendTo(weatherInformationComposite);
+  let forecastScrollView = new ForecastScrollView({
+    data: data,
+    top: "prev()",
+    left: 0,
+    right: 0,
   }).appendTo(weatherInformationComposite);
   tabris.device.on("change:orientation", (device, orientation) => {
     switch (orientation) {
@@ -93,7 +100,7 @@ function createCitySelector() {
         .then((data) => {
           currentCityName = data.cityName + ", " + data.countryName;
           widget.set("text", currentCityName);
-          drawNewCity(data)
+          drawNewCity(data);
         }).catch((error) => {
           console.error(error);
           widget.set("text", "");
