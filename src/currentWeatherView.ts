@@ -1,7 +1,7 @@
 /// <reference path="../typings/browser.d.ts" />
 import {WeatherData} from "./weatherService";
 
-const textColor = "rgb(255, 255,255)";
+const textColor = "rgb(255, 255, 255)";
 const MARGIN = 8;
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const smallFont = "thin 19px sans-serif";
@@ -15,7 +15,7 @@ interface CurrentWeatherViewProperties extends tabris.CompositeProperties {
 export default class CurrentWeatherView extends tabris.Composite {
   private font: string;
   private iconSize: number;
-  
+
   constructor(properties: CurrentWeatherViewProperties) {
     super(properties);
     let data = properties.data;
@@ -63,7 +63,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       width: this.iconSize,
       height: this.iconSize,
       scaleMode: "stretch",
-      image: "/icons/" + icon + ".png"
+      image: "/icons/" + icon + "Big.png"
     });
   }
   createTemperatureText(temperature: number) {
@@ -75,7 +75,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: this.font
     });
   }
-  
+
   createWeatherText(text: string) {
     return new tabris.TextView({
       top: "prev()",
@@ -83,7 +83,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       text: text,
       textColor: textColor,
       font: bigFont
-    })
+    });
   }
 }
 
