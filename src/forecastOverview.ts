@@ -9,6 +9,7 @@ const innerMargin = 6;
 const daysAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const smallFont = "thin 19px sans-serif";
 const bigFont = "thin 28px sans-serif";
+const smallFontItalic = "italic thin 22px sans-serif";
 
 
 
@@ -80,11 +81,11 @@ export default class ForecastOverview extends tabris.Composite {
 
   createWeatherText(text: string) {
     return new tabris.TextView({
-      top: "prev()",
-      centerX: 0,
+      left: "prev() 8",
+      centerY: 0,
       text: text,
       textColor: textColor,
-      font: bigFont
+      font: smallFontItalic
     });
   }
 
