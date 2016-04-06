@@ -45,6 +45,10 @@ export default class ForecastScrollView extends tabris.TabFolder {
     });
     this.fillTab(this.tabs[0]);
   }
+  
+  public getTabIndex(tab: tabris.Tab) {
+    return this.tabs.indexOf(tab);
+  }
 
   createTab(text: string, isFirst: boolean, isLast: boolean) {
     let tab = new tabris.Tab();
@@ -177,7 +181,7 @@ export default class ForecastScrollView extends tabris.TabFolder {
   }
   createWeatherIcon(icon: string) {
     return new tabris.ImageView({
-      right: "prev()",
+      right: 60,
       width: iconSize,
       height: iconSize,
       centerY: 0,
