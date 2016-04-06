@@ -17,7 +17,7 @@ export default class BackgroundLayer extends tabris.Composite {
     }
     this.clouds = [];
     this.offsetFactors = [];
-    if (!count) count = 14;
+    if (!count) count = 6;
     console.log("drawing " + count + " clouds");
     let positions = this.generateDistribution(count);
     console.log("cloud positions: ");
@@ -42,10 +42,11 @@ export default class BackgroundLayer extends tabris.Composite {
 
   private generateDistribution(n: number): number[] {
     let result = [];
-    let height = this.get("bounds").height;
+    let initialOffset = 140;
+    let height = this.get("bounds").height - initialOffset;
     let extraOffset = (height * 0.2) / n;
     for (let i = 0; i < n; i++) {
-      result.push(i * 0.8 * (height / n) + i * extraOffset);
+      result.push(initialOffset + (i * 0.8 * (height / n) + i * extraOffset));
     }
 
     return result;
