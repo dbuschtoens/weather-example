@@ -1,4 +1,5 @@
 /// <reference path="../typings/browser.d.ts" />
+
 import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255, 255)";
 const infoBoxColor = "rgba(0, 0, 0, 0.2)";
@@ -17,7 +18,7 @@ interface ForecastScrollViewProperties extends tabris.TabFolderProperties {
   data: WeatherData;
 }
 
-export default class ForecastScrollView extends tabris.TabFolder {
+export default class ForecastTabView extends tabris.TabFolder {
   private data: WeatherData;
   private tabs: tabris.Tab[];
   private tabsLoaded: boolean[];
@@ -43,7 +44,7 @@ export default class ForecastScrollView extends tabris.TabFolder {
     }
     this.tabs.push(this.createTab(dayNames[this.data.days[numDays - 1][0].date.getDay()], false, true));
     this.append(this.tabs[numDays - 1]);
-    this.on("change:selection", (widget: ForecastScrollView, selection) => {
+    this.on("change:selection", (widget: ForecastTabView, selection) => {
       if (widget.lazyLoading) {
         clearTimeout(widget.timeoutID);
         setTimeout(() => widget.JITLoad(selection), 180);

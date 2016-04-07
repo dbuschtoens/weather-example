@@ -1,6 +1,6 @@
 /// <reference path="../typings/browser.d.ts" />
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
-import ForecastScrollView from "./forecastScrollView";
+import ForecastTabView from "./forecastTabView";
 import CurrentWeatherView from "./currentWeatherView";
 import Overview from "./forecastOverview";
 import Graph from "./weatherGraph";
@@ -32,7 +32,7 @@ let citySelector = createCitySelector().appendTo(scrollView);
 
 scrollView.on("scroll", (widget, offset) => {
   background.scroll((<{ x: number, y: number }>offset).y);
-  citySelector.set("transform", { translationY: (<{ x: number, y: number }>offset).y * 0.5 });
+  citySelector.set("transform", { translationY: (<{ x: number, y: number }>offset).y * 0.6 });
 });
 
 if (localStorage.getItem("city")) {
@@ -107,14 +107,14 @@ function createWeatherInformation(data: WeatherData) {
     width: tabris.device.get("screenWidth"),
   }).appendTo(page);
   graph.set("class")
-  let forecastScrollView = new ForecastScrollView({
+  let forecastTabView = new ForecastTabView({
     data: data,
     class: "weatherInfo",
     id: "forecast",
     top: "prev() 4",
     left: 0,
   }).on("change:selection", (widget, selection) => {
-    let day = (<ForecastScrollView>widget).getTabIndex(selection);
+    let day = (<ForecastTabView>widget).getTabIndex(selection);
     if (day === 0) {
       animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime());
     } else {
