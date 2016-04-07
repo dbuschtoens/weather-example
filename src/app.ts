@@ -17,29 +17,26 @@ let page = new tabris.Page({
 let scrollView = new tabris.ScrollView({
   left: 0,
   top: 0,
-  width: tabris.device.get("screenWidth"),
+  right: 0,
+  // width: tabris.device.get("screenWidth"),
   background: "rgb(83,100,160)"
 }).appendTo(page);
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
-  width: 360,
-  height: 1210,
-  // right: 0,
-  // bottom: 0,
-  //  background: "rgba(255,0,0,0.1)"
+  right: 0,
+  height: 1210
 }).appendTo(scrollView);
-scrollView.on("scroll", (widget, _offset) => {
-  let offset = <{ x: number, y: number }>_offset;
-  background.scroll(offset.y);
+scrollView.on("scroll", (widget, offset) => {
+  background.scroll((<{ x: number, y: number }>offset).y);
 });
 
-
-
-createCitySelector().appendTo(scrollView);
+let citySelector = createCitySelector().appendTo(scrollView);
+if (localStorage.getItem("city")) {
+  loadDataFromInput(citySelector, localStorage.getItem("city"))
+}
 let currentWeatherInformation: tabris.Composite;
-let currentCityName = "";
-pollWeatherData("Karlsruhe").then(drawNewCity);
+// pollWeatherData("Karlsruhe").then(drawNewCity);
 
 
 function drawNewCity(data: WeatherData) {
@@ -50,10 +47,15 @@ function drawNewCity(data: WeatherData) {
 }
 
 function createWeatherInformation(data: WeatherData) {
+  // problem: layout wechseln
+  // lösung: in Klasse verpacken, UI elemente als felder speichern
+  // lösung: UI elemente in globale variable speichern
+  // lösung: layout funktion die alle Elemente annimmt
+  // create elements => layout elements
   let weatherInformationComposite = new tabris.Composite({
     top: "prev()",
     left: 0,
-    right: 0,
+    width: tabris.device.get("screenWidth")
   }).appendTo(scrollView);
   let currentWeatherView = new CurrentWeatherView({
     data: data,
@@ -79,19 +81,16 @@ function createWeatherInformation(data: WeatherData) {
     data: data,
     top: "prev() 4",
     left: 0,
-    right: 0,
   }).on("change:selection", (widget, selection) => {
     let thisView = <ForecastScrollView>widget;
     let day = thisView.getTabIndex(selection);
     if (day === 0) {
-      setTimeout(() => animateGraphChange(graph, data.list[0].date, data.list[data.list.length - 1].date));
+      setTimeout(() => animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime()));
     } else {
       let time = data.days[day][0].date.getTime();
       let newMin = new Date(time);
       let newMax = new Date(time + 24 * 60 * 60 * 1000);
-      newMin.setHours(0, 0, 0, 0);
-      newMax.setHours(0, 0, 0, 0);
-      setTimeout(() => animateGraphChange(graph, newMin, newMax));
+      setTimeout(() => animateGraphChange(graph, newMin.setHours(0, 0, 0, 0), newMax.setHours(0, 0, 0, 0)), 0);
     }
   }).appendTo(weatherInformationComposite);
 
@@ -99,8 +98,8 @@ function createWeatherInformation(data: WeatherData) {
     switch (orientation) {
       case "portrait-primary":
       case "portrait-secondary":
-        scrollView.set("width", tabris.device.get("screenWidth"));
-        graph.set("top", "prev()")
+        weatherInformationComposite.set("width", tabris.device.get("screenWidth"));
+        graph.set("top", "prev()");
         graph.appendTo(scrollView);
         graph.set("width", tabris.device.get("screenWidth"));
         graph.set("height", tabris.device.get("screenHeight") / 3 - 20);
@@ -111,11 +110,11 @@ function createWeatherInformation(data: WeatherData) {
         break;
       case "landscape-primary":
       case "landscape-secondary":
-        scrollView.set("width", tabris.device.get("screenWidth") / 2);
-        graph.set("top", 27);
+        weatherInformationComposite.set("width", tabris.device.get("screenWidth") * 0.55);
+        graph.set("top", 40);
         graph.appendTo(page);
-        graph.set("width", tabris.device.get("screenWidth") / 2);
-        graph.set("height", tabris.device.get("screenHeight") - 60);
+        graph.set("width", tabris.device.get("screenWidth") * 0.45);
+        graph.set("height", tabris.device.get("screenHeight") - 75);
         graph.nightColor = "rgba(103,113,145,0.835)";
         graph.dayColor = "rgba(131,156,188,0.741)";
         graph.draw();
@@ -126,20 +125,11 @@ function createWeatherInformation(data: WeatherData) {
   return weatherInformationComposite;
 }
 
-function animateGraphChange(graph: Graph, min: Date, max: Date) {
-  graph.animate({ opacity: 0 }, { duration: 128, easing: "ease-in" })
+function animateGraphChange(graph: Graph, min: number, max: number) {
+  graph.animate({ opacity: 0 }, { duration: 180, easing: "ease-in-out" });
   graph.once("animationend", () => {
     graph.setScale(min, max);
-    graph.animate({ opacity: 1 }, { duration: 128, easing: "ease-out" });
-  });
-}
-
-function createBackground() {
-  return new tabris.ImageView({
-    centerX: 0, top: 0,
-    image: "/images/cloudySmall.jpg",
-    scaleMode: "fill",
-    height: tabris.device.get("screenHeight")
+    graph.animate({ opacity: 1 }, { duration: 180, easing: "ease-in-out" });
   });
 }
 
@@ -151,19 +141,22 @@ function createCitySelector() {
     textColor: "#FFFFFF",
     font: "normal thin 32px sans-serif"
   }).on("focus", (widget) => widget.set("text", "")
-    ).on("blur", (widget) => widget.set("text", currentCityName)
-    ).on("accept", (widget, text) => {
-      let activityIndicator = new tabris.ActivityIndicator({ centerX: 0, centerY: 0 }).appendTo(page);
-      pollWeatherData(text)
-        .then((data) => {
-          currentCityName = data.cityName + ", " + data.countryName;
-          widget.set("text", currentCityName);
-          drawNewCity(data);
-        }).catch((error) => {
-          console.error(error);
-          widget.set("text", "");
-        }).then(() => activityIndicator.dispose());
-    });
+    ).on("blur", (widget) => widget.set("text", localStorage.getItem("city") || "")
+    ).on("accept", loadDataFromInput);
+}
+
+function loadDataFromInput(widget: tabris.TextInput, text: string) {
+  let activityIndicator = new tabris.ActivityIndicator({ centerX: 0, centerY: 0 }).appendTo(page);
+  pollWeatherData(text)
+    .then((data) => {
+      widget.set("text", data.cityName + ", " + data.countryName);
+      localStorage.setItem("city", data.cityName + ", " + data.countryName);
+      drawNewCity(data);
+    }).catch((error) => {
+      console.error(error);
+      widget.set("text", "");
+      localStorage.setItem("city", "");
+    }).then(() => activityIndicator.dispose());
 }
 
 page.open();

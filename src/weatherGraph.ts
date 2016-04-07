@@ -20,9 +20,9 @@ interface WeatherGraphProperties extends tabris.CanvasProperties {
 }
 
 export default class WeatherGraph extends tabris.Canvas {
-  private scale: { minX: number, maxX: number, minY: number, maxY: number };
   private dataPoints: WeatherDatum[];
   private data: WeatherData;
+  public scale: { minX: number, maxX: number, minY: number, maxY: number };
   public nightColor: string;
   public dayColor: string;
 
@@ -56,11 +56,11 @@ export default class WeatherGraph extends tabris.Canvas {
     if ((newMax - newMin) >= (maxTime - minTime)) {
       [newMin, newMax] = [minTime, maxTime];
     };
-    this.setScale(new Date(newMin), new Date(newMax));
+    this.setScale(newMin, newMax);
   }
 
-  public setScale(newMin: Date, newMax: Date) {
-    [this.scale.minX, this.scale.maxX] = [newMin.getTime(), newMax.getTime()];
+  public setScale(newMin: number, newMax: number) {
+    [this.scale.minX, this.scale.maxX] = [newMin, newMax];
     this.initDataPoints();
     this.initScale();
     this.draw();
