@@ -18,9 +18,9 @@ let scrollView = new tabris.ScrollView({
   left: 0,
   top: 0,
   right: 0,
-  // width: tabris.device.get("screenWidth"),
   background: "rgb(83,100,160)"
 }).appendTo(page);
+
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
@@ -35,87 +35,92 @@ let citySelector = createCitySelector().appendTo(scrollView);
 if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
-let currentWeatherInformation: tabris.Composite;
 
 function drawNewCity(data: WeatherData) {
   tabris.device.off();
-  if (currentWeatherInformation && !currentWeatherInformation.isDisposed()) currentWeatherInformation.dispose();
-  currentWeatherInformation = createWeatherInformation(data);
+  page.find(".weatherInfo").dispose();
+  createWeatherInformation(data);
+  layoutUI();
   background.generateNewClouds();
+  tabris.device.on("change:orientation", (device, orientation) => {
+    layoutUI();
+    background.generateNewClouds();
+  });
+}
+
+function layoutUI() {
+  let orientation = tabris.device.get("orientation");
+  let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
+  console.error("landscape: " + landscape)
+  let composite = new tabris.Composite({
+    top: "prev()",
+    left: 0,
+    width: landscape ? tabris.device.get("screenWidth") * 0.55 : tabris.device.get("screenWidth"),
+    class: "weatherInfo"
+  }).appendTo(scrollView);
+  page.find("#current").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
+  page.find("#overview").set("LayoutData", { top: "prev()", left: 0, right: 0 }).appendTo(composite);
+  let graph = page.find("#graph")[0];
+  if (landscape) {
+    graph.set("top", 40);
+    graph.set("width", tabris.device.get("screenWidth") * 0.45);
+    graph.set("height", tabris.device.get("screenHeight") - 75);
+    graph.appendTo(page);
+  } else {
+    graph.set("top", "prev()");
+    graph.set("width", tabris.device.get("screenWidth"));
+    graph.set("height", tabris.device.get("screenHeight") / 3 - 20);
+    graph.appendTo(composite);
+  }
+  graph.draw();
+  page.find("#forecast").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
 }
 
 function createWeatherInformation(data: WeatherData) {
-  let weatherInformationComposite = new tabris.Composite({
-    top: "prev()",
-    left: 0,
-    width: tabris.device.get("screenWidth")
-  }).appendTo(scrollView);
   let currentWeatherView = new CurrentWeatherView({
     data: data,
+    class: "weatherInfo",
+    id: "current",
     top: 0,
     left: 0,
     right: 0,
     height: 200,
-  }).appendTo(weatherInformationComposite);
+  }).appendTo(page)
   let overview = new Overview({
+    class: "weatherInfo",
+    id: "overview",
     data: data,
     top: "prev()",
     left: 0,
     right: 0,
-  }).appendTo(weatherInformationComposite);
+  }).appendTo(page);
   let graph = new Graph({
     data: data,
+    class: "weatherInfo",
+    id: "graph",
     top: "prev()",
     right: 0,
     height: tabris.device.get("screenHeight") / 3 - 20,
     width: tabris.device.get("screenWidth"),
-  }).appendTo(weatherInformationComposite);
+  }).appendTo(page);
+  graph.set("class")
   let forecastScrollView = new ForecastScrollView({
     data: data,
+    class: "weatherInfo",
+    id: "forecast",
     top: "prev() 4",
     left: 0,
   }).on("change:selection", (widget, selection) => {
-    let thisView = <ForecastScrollView>widget;
-    let day = thisView.getTabIndex(selection);
+    let day = (<ForecastScrollView>widget).getTabIndex(selection);
     if (day === 0) {
-      setTimeout(() => animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime()));
+      animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime());
     } else {
       let time = data.days[day][0].date.getTime();
       let newMin = new Date(time);
       let newMax = new Date(time + 24 * 60 * 60 * 1000);
-      setTimeout(() => animateGraphChange(graph, newMin.setHours(0, 0, 0, 0), newMax.setHours(0, 0, 0, 0)), 0);
+      animateGraphChange(graph, newMin.setHours(0, 0, 0, 0), newMax.setHours(0, 0, 0, 0));
     }
-  }).appendTo(weatherInformationComposite);
-
-  tabris.device.on("change:orientation", (device, orientation) => {
-    switch (orientation) {
-      case "portrait-primary":
-      case "portrait-secondary":
-        weatherInformationComposite.set("width", tabris.device.get("screenWidth"));
-        graph.set("top", "prev()");
-        graph.appendTo(scrollView);
-        graph.set("width", tabris.device.get("screenWidth"));
-        graph.set("height", tabris.device.get("screenHeight") / 3 - 20);
-        forecastScrollView.appendTo(scrollView);
-        graph.nightColor = "rgba(103,113,145,0.392)";
-        graph.dayColor = "rgba(131,156,188,0.286)";
-        graph.draw();
-        break;
-      case "landscape-primary":
-      case "landscape-secondary":
-        weatherInformationComposite.set("width", tabris.device.get("screenWidth") * 0.55);
-        graph.set("top", 40);
-        graph.appendTo(page);
-        graph.set("width", tabris.device.get("screenWidth") * 0.45);
-        graph.set("height", tabris.device.get("screenHeight") - 75);
-        graph.nightColor = "rgba(103,113,145,0.835)";
-        graph.dayColor = "rgba(131,156,188,0.741)";
-        graph.draw();
-        break;
-    }
-    background.generateNewClouds();
-  });
-  return weatherInformationComposite;
+  }).appendTo(page);
 }
 
 function animateGraphChange(graph: Graph, min: number, max: number) {
