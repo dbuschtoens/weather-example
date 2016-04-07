@@ -11,7 +11,6 @@ tabris.ui.set("toolbarVisible", false);
 let page = new tabris.Page({
   title: "Weather Forecast",
   topLevel: true,
-  background: "rgb(74, 92, 151)"
 });
 
 let scrollView = new tabris.ScrollView({
@@ -39,6 +38,8 @@ if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
 
+
+
 function drawNewCity(data: WeatherData) {
   tabris.device.off();
   page.find(".weatherInfo").dispose();
@@ -51,33 +52,6 @@ function drawNewCity(data: WeatherData) {
   });
 }
 
-function layoutUI() {
-  let orientation = tabris.device.get("orientation");
-  let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
-  console.error("landscape: " + landscape)
-  let composite = new tabris.Composite({
-    top: "prev()",
-    left: 0,
-    width: landscape ? tabris.device.get("screenWidth") * 0.55 : tabris.device.get("screenWidth"),
-    class: "weatherInfo"
-  }).appendTo(scrollView);
-  page.find("#current").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
-  page.find("#overview").set("LayoutData", { top: "prev()", left: 0, right: 0 }).appendTo(composite);
-  let graph = page.find("#graph")[0];
-  if (landscape) {
-    graph.set("top", 40);
-    graph.set("width", tabris.device.get("screenWidth") * 0.45);
-    graph.set("height", tabris.device.get("screenHeight") - 75);
-    graph.appendTo(page);
-  } else {
-    graph.set("top", "prev()");
-    graph.set("width", tabris.device.get("screenWidth"));
-    graph.set("height", tabris.device.get("screenHeight") / 3 - 20);
-    graph.appendTo(composite);
-  }
-  graph.draw();
-  page.find("#forecast").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
-}
 
 function createWeatherInformation(data: WeatherData) {
   let currentWeatherView = new CurrentWeatherView({
@@ -126,12 +100,32 @@ function createWeatherInformation(data: WeatherData) {
   }).appendTo(page);
 }
 
-function animateGraphChange(graph: Graph, min: number, max: number) {
-  graph.animate({ opacity: 0 }, { duration: 180, easing: "ease-in-out" });
-  graph.once("animationend", () => {
-    graph.setScale(min, max);
-    graph.animate({ opacity: 1 }, { duration: 180, easing: "ease-in-out" });
-  });
+function layoutUI() {
+  let orientation = tabris.device.get("orientation");
+  let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
+  console.error("landscape: " + landscape)
+  let composite = new tabris.Composite({
+    top: "prev()",
+    left: 0,
+    width: landscape ? tabris.device.get("screenWidth") * 0.55 : tabris.device.get("screenWidth"),
+    class: "weatherInfo"
+  }).appendTo(scrollView);
+  page.find("#current").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
+  page.find("#overview").set("LayoutData", { top: "prev()", left: 0, right: 0 }).appendTo(composite);
+  let graph = page.find("#graph")[0];
+  if (landscape) {
+    graph.set("top", 40);
+    graph.set("width", tabris.device.get("screenWidth") * 0.45);
+    graph.set("height", tabris.device.get("screenHeight") - 75);
+    graph.appendTo(page);
+  } else {
+    graph.set("top", "prev()");
+    graph.set("width", tabris.device.get("screenWidth"));
+    graph.set("height", tabris.device.get("screenHeight") / 3 - 20);
+    graph.appendTo(composite);
+  }
+  graph.draw();
+  page.find("#forecast").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
 }
 
 function createCitySelector() {
@@ -159,5 +153,14 @@ function loadDataFromInput(widget: tabris.TextInput, text: string) {
       localStorage.setItem("city", "");
     }).then(() => activityIndicator.dispose());
 }
+
+function animateGraphChange(graph: Graph, min: number, max: number) {
+  graph.animate({ opacity: 0 }, { duration: 180, easing: "ease-in-out" });
+  graph.once("animationend", () => {
+    graph.setScale(min, max);
+    graph.animate({ opacity: 1 }, { duration: 180, easing: "ease-in-out" });
+  });
+}
+
 
 page.open();
