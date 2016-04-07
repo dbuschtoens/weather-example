@@ -27,11 +27,14 @@ let background = new BackgroundLayer({
   right: 0,
   height: 1210
 }).appendTo(scrollView);
-scrollView.on("scroll", (widget, offset) => {
-  background.scroll((<{ x: number, y: number }>offset).y);
-});
 
 let citySelector = createCitySelector().appendTo(scrollView);
+
+scrollView.on("scroll", (widget, offset) => {
+  background.scroll((<{ x: number, y: number }>offset).y);
+  citySelector.set("transform", { translationY: (<{ x: number, y: number }>offset).y * 0.5 });
+});
+
 if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
