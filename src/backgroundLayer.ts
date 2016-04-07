@@ -11,13 +11,13 @@ export default class BackgroundLayer extends tabris.Composite {
     this.distance = [];
   }
 
-  public generateNewClouds(count?: number) {
+  public generateNewClouds() {
     for (let cloud of this.clouds) {
       cloud.dispose();
     }
     this.clouds = [];
     this.distance = [];
-    if (!count) count = 6;
+    let count = 6;
     let positions = this.generateDistribution(count);
     for (let i = 0; i < count; i++) {
       this.clouds[i] = this.generateCloud(positions[i], this.distance[i]).appendTo(this);

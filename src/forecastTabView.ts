@@ -56,6 +56,10 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.fillTabs(this.tabs[0]);
   }
 
+  public getTabIndex(tab: tabris.Tab) {
+    return this.tabs.indexOf(tab);
+  }
+
   private createTab(text: string, isFirst: boolean, isLast: boolean) {
     let tab = new tabris.Tab();
     this.createHeader(text, isFirst, isLast).appendTo(tab);

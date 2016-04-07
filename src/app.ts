@@ -103,7 +103,6 @@ function createWeatherInformation(data: WeatherData) {
 function layoutUI() {
   let orientation = tabris.device.get("orientation");
   let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
-  console.error("landscape: " + landscape)
   let composite = new tabris.Composite({
     top: "prev()",
     left: 0,
