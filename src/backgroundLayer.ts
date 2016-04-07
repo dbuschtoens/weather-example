@@ -3,12 +3,12 @@ import {WeatherData} from "./weatherService";
 
 export default class BackgroundLayer extends tabris.Composite {
   private clouds: tabris.ImageView[];
-  private offsetFactors: number[];
+  private distance: number[];
 
   constructor(properties: tabris.CompositeProperties) {
     super(properties);
     this.clouds = [];
-    this.offsetFactors = [];
+    this.distance = [];
   }
 
   public generateNewClouds(count?: number) {
@@ -16,12 +16,11 @@ export default class BackgroundLayer extends tabris.Composite {
       cloud.dispose();
     }
     this.clouds = [];
-    this.offsetFactors = [];
+    this.distance = [];
     if (!count) count = 6;
     let positions = this.generateDistribution(count);
     for (let i = 0; i < count; i++) {
-      this.clouds[i] = this.generateCloud(positions[i]).appendTo(this);
-      this.offsetFactors[i] = Math.random() * 0.5 + 0.2;
+      this.clouds[i] = this.generateCloud(positions[i], this.distance[i]).appendTo(this);
     }
   };
 
@@ -32,7 +31,7 @@ export default class BackgroundLayer extends tabris.Composite {
         translationX: previousTransform.translationX,
         scaleX: previousTransform.scaleX,
         scaleY: previousTransform.scaleY,
-        translationY: offset * this.offsetFactors[i]
+        translationY: offset * ((this.distance[i] / 10) * 0.8 + 0.2)
       });
     }
   }
@@ -44,15 +43,17 @@ export default class BackgroundLayer extends tabris.Composite {
     let extraOffset = (height * 0.2) / n;
     for (let i = 0; i < n; i++) {
       result.push(initialOffset + (i * 0.8 * (height / n) + i * extraOffset));
+      this.distance[i] = Math.random() * 10;
     }
 
     return result;
   }
 
-  private generateCloud(position: number) {
+  private generateCloud(position: number, distance: number) {
     let cloudImage = Math.ceil(Math.random() * 21);
     let horizontalOffset = Math.ceil((0.5 - Math.random()) * this.get("bounds").width);
-    let scale = ((Math.random() * 0.7) + 1);
+    // let scale = ((Math.random() * 0.7) + 1);
+    let scale = ((10 - distance) / 10) * 1.6 + 0.4;
     return new tabris.ImageView({
       image: "/images/cloud" + cloudImage + ".png",
       width: this.get("bounds").width,
