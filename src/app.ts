@@ -18,7 +18,6 @@ let scrollView = new tabris.ScrollView({
   right: 0,
   background: "rgb(83,100,160)"
 }).appendTo(page);
-
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
@@ -37,8 +36,6 @@ if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
 
-
-
 function drawNewCity(data: WeatherData) {
   tabris.device.off();
   page.find(".weatherInfo").dispose();
@@ -53,40 +50,12 @@ function drawNewCity(data: WeatherData) {
 
 
 function createWeatherInformation(data: WeatherData) {
-  let currentWeatherView = new CurrentWeatherView({
-    data: data,
-    class: "weatherInfo",
-    id: "current",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 200,
-  }).appendTo(page)
-  let overview = new Overview({
-    class: "weatherInfo",
-    id: "overview",
-    data: data,
-    top: "prev()",
-    left: 0,
-    right: 0,
-  }).appendTo(page);
-  let graph = new Graph({
-    data: data,
-    class: "weatherInfo",
-    id: "graph",
-    top: "prev()",
-    right: 0,
-    height: tabris.device.get("screenHeight") / 3 - 20,
-    width: tabris.device.get("screenWidth"),
-  }).appendTo(page);
-  graph.set("class")
-  let forecastTabView = new ForecastTabView({
-    data: data,
-    class: "weatherInfo",
-    id: "forecast",
-    top: "prev() 4",
-    left: 0,
-  }).on("change:selection", (widget, selection) => {
+  let properties = {data: data, class: "weatherInfo"};
+  new CurrentWeatherView(properties).set("id", "current").appendTo(page)
+  new Overview(properties).set("id", "overview").appendTo(page);
+  let graph = new Graph(properties).set("id", "graph").appendTo(page);
+
+  new ForecastTabView(properties).set("id", "forecast").on("change:selection", (widget, selection) => {
     let day = (<ForecastTabView>widget).getTabIndex(selection);
     if (day === 0) {
       animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime());
@@ -98,6 +67,7 @@ function createWeatherInformation(data: WeatherData) {
     }
   }).appendTo(page);
 }
+
 
 function layoutUI() {
   let orientation = tabris.device.get("orientation");
