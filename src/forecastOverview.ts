@@ -11,8 +11,6 @@ const smallFont = "thin 19px sans-serif";
 const bigFont = "thin 28px sans-serif";
 const smallFontItalic = "italic thin 22px sans-serif";
 
-
-
 interface ForecastOverviewProperties extends tabris.CompositeProperties {
   data: WeatherData;
 }

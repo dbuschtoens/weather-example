@@ -37,13 +37,11 @@ export default class WeatherGraph extends tabris.Canvas {
       maxX: this.data.list[this.data.list.length - 1].date.getTime(),
       minY: 0,
       maxY: 0
-    }
+    };
     this.initDataPoints();
     this.initScale();
     this.draw();
   }
-
-
 
   public zoom(factor: number) {
     let meanTime = (this.scale.maxX + this.scale.minX) / 2;

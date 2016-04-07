@@ -76,7 +76,6 @@ export class WeatherData {
 
   static getAverageWeatherDescription(day: WeatherDatum[]): string {
     let weather = "";
-
     if (day.filter((forecast) => (forecast.weather === "Clouds")).length >= 3) {
       weather += "cloudy, ";
     }
@@ -102,7 +101,6 @@ export class WeatherData {
     return this.list[this.list.length - 1];
   }
 
-
   private linearInterpolate(previous: WeatherDatum, next: WeatherDatum, time: number): WeatherDatum {
     let [prevTime, nextTime] = [previous.date.getTime(), next.date.getTime()];
     let a = (time - prevTime) / (nextTime - prevTime);
@@ -119,7 +117,7 @@ export class WeatherData {
       windDirection: previous.windDirection + a * (next.windDirection - previous.windDirection),
       rain: previous.rain + a * (next.rain - previous.rain),
       snow: previous.snow + a * (next.snow - previous.snow),
-    }
+    };
   }
 
 

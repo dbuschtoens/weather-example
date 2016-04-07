@@ -33,11 +33,9 @@ scrollView.on("scroll", (widget, offset) => {
 
 let citySelector = createCitySelector().appendTo(scrollView);
 if (localStorage.getItem("city")) {
-  loadDataFromInput(citySelector, localStorage.getItem("city"))
+  loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
 let currentWeatherInformation: tabris.Composite;
-// pollWeatherData("Karlsruhe").then(drawNewCity);
-
 
 function drawNewCity(data: WeatherData) {
   tabris.device.off();
@@ -47,11 +45,6 @@ function drawNewCity(data: WeatherData) {
 }
 
 function createWeatherInformation(data: WeatherData) {
-  // problem: layout wechseln
-  // lösung: in Klasse verpacken, UI elemente als felder speichern
-  // lösung: UI elemente in globale variable speichern
-  // lösung: layout funktion die alle Elemente annimmt
-  // create elements => layout elements
   let weatherInformationComposite = new tabris.Composite({
     top: "prev()",
     left: 0,

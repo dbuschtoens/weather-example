@@ -2,7 +2,7 @@
 import {WeatherData} from "./weatherService";
 
 const textColor = "rgb(255, 255, 255)";
-const MARGIN = 8;
+const margin = 8;
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const smallFont = "thin 19px sans-serif";
 const smallFontItalic = "italic thin 19px sans-serif";
