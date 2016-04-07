@@ -128,8 +128,6 @@ export default class ForecastScrollView extends tabris.TabFolder {
         centerY: 0,
         height: 50,
         highlightOnTouch: true
-      }).on("tap", () => {
-        // todo: change tab
       }).appendTo(container);
     }
     if (!isLast) {
@@ -139,8 +137,6 @@ export default class ForecastScrollView extends tabris.TabFolder {
         centerY: 0,
         height: 50,
         highlightOnTouch: true
-      }).on("tap", () => {
-        // todo: change tab
       }).appendTo(container);
     }
     return container;
