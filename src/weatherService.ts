@@ -1,4 +1,3 @@
-/// <reference path="../typings/browser.d.ts" />
 
 const API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
@@ -119,7 +118,6 @@ export class WeatherData {
       snow: previous.snow + a * (next.snow - previous.snow),
     };
   }
-
 
   private parseDatum(datum: any): WeatherDatum {
     return {

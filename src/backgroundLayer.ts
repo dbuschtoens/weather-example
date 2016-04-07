@@ -1,4 +1,3 @@
-/// <reference path="../typings/browser.d.ts" />
 import {WeatherData} from "./weatherService";
 
 export default class BackgroundLayer extends tabris.Composite {
@@ -52,7 +51,6 @@ export default class BackgroundLayer extends tabris.Composite {
   private generateCloud(position: number, distance: number) {
     let cloudImage = Math.ceil(Math.random() * 21);
     let horizontalOffset = Math.ceil((0.5 - Math.random()) * this.get("bounds").width);
-    // let scale = ((Math.random() * 0.7) + 1);
     let scale = ((10 - distance) / 10) * 1.6 + 0.4;
     return new tabris.ImageView({
       image: "/images/cloud" + cloudImage + ".png",

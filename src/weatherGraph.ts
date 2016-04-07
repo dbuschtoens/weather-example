@@ -1,4 +1,3 @@
-/// <reference path="../typings/browser.d.ts" />
 
 import {WeatherData, WeatherDatum} from "./weatherService";
 
@@ -22,10 +21,9 @@ interface WeatherGraphProperties extends tabris.CanvasProperties {
 export default class WeatherGraph extends tabris.Canvas {
   private dataPoints: WeatherDatum[];
   private data: WeatherData;
-  public scale: { minX: number, maxX: number, minY: number, maxY: number };
+  private scale: { minX: number, maxX: number, minY: number, maxY: number };
   public nightColor: string;
   public dayColor: string;
-
 
   constructor(properties: WeatherGraphProperties) {
     super(properties);

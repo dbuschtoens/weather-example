@@ -1,4 +1,3 @@
-/// <reference path="../typings/browser.d.ts" />
 import {WeatherDatum, WeatherData, pollWeatherData} from "./weatherService";
 import ForecastTabView from "./forecastTabView";
 import CurrentWeatherView from "./currentWeatherView";

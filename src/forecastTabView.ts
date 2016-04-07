@@ -1,4 +1,3 @@
-/// <reference path="../typings/browser.d.ts" />
 
 import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255, 255)";

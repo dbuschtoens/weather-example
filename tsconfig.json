@@ -4,13 +4,8 @@
     "target": "es6",
     "outDir": "./bin/"
   },
-  "files": [
-    "typings/browser.d.ts",
-    "src/app.ts",
-    "src/weatherService.ts",
-    "src/forcastTabView.ts",
-    "src/forcastOverview.ts",
-    "src/currentWeatherView.ts",
-    "src/weatherGraph.ts"
-  ]
+    "exclude": [
+    "typings/main.d.ts",
+    "typings/main"
+    ]
 }
