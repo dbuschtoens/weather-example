@@ -20,8 +20,11 @@ interface ForecastScrollViewProperties extends tabris.TabFolderProperties {
 export default class ForecastScrollView extends tabris.TabFolder {
   private data: WeatherData;
   private tabs: tabris.Tab[];
-  private boxesInTabs: tabris.Composite[][];
+  private tabsLoaded: boolean[];
   private scrollView: tabris.ScrollView;
+  private lazyLoading: boolean;
+  private timeoutID: number;
+
 
   constructor(properties: ForecastScrollViewProperties) {
     properties.height = headerHeight + 8 * forecastBoxHeight;
@@ -31,7 +34,7 @@ export default class ForecastScrollView extends tabris.TabFolder {
     this.data = properties.data;
     this.tabs = [this.createTab("today", true, false)];
     this.append(this.tabs[0]);
-    this.boxesInTabs = [];
+    this.tabsLoaded = [];
     let numDays = this.data.days.length;
     for (let index = 1; index < numDays - 1; index++) {
       let headerName = dayNames[this.data.days[index][0].date.getDay()];
@@ -41,8 +44,13 @@ export default class ForecastScrollView extends tabris.TabFolder {
     this.tabs.push(this.createTab(dayNames[this.data.days[numDays - 1][0].date.getDay()], false, true));
     this.append(this.tabs[numDays - 1]);
     this.on("change:selection", (widget: ForecastScrollView, selection) => {
-      // widget.fillTab(selection);
-      setTimeout(() => widget.fillTabs(selection), 800);
+      if (widget.lazyLoading) {
+        clearTimeout(widget.timeoutID);
+        setTimeout(() => widget.JITLoad(selection), 180);
+      } else {
+        widget.lazyLoading = true;
+        widget.timeoutID = setTimeout(() => widget.fillTabs(selection), 800);
+      }
     });
     this.fillTabs(this.tabs[0]);
   }
@@ -58,40 +66,27 @@ export default class ForecastScrollView extends tabris.TabFolder {
   }
 
   fillTabs(selected: tabris.Tab) {
-    let selectedNumber = this.tabs.indexOf(selected);
-    for (let tabNumber = 0; tabNumber < this.tabs.length; tabNumber++) {
-      if (Math.abs(selectedNumber - tabNumber) > 1) {
-        if (this.boxesInTabs[tabNumber]) {
-          for (let box of this.boxesInTabs[tabNumber]) {
-            box.dispose();
-          }
-          this.boxesInTabs[tabNumber] = [];
-        }
-      } else {
-        if (this.boxesInTabs[tabNumber] && this.boxesInTabs[tabNumber].length > 0) {
-          continue;
-        }
-        this.boxesInTabs[tabNumber] = [];
+    let selectedTabNumber = this.tabs.indexOf(selected);
+    let maxTabNumber = Math.min(this.tabs.length - 1, selectedTabNumber + 1);
+    let minTabNumber = Math.max(0, selectedTabNumber - 1);
+    for (let tabNumber = minTabNumber; tabNumber <= maxTabNumber; tabNumber++) {
+      if (!this.tabsLoaded[tabNumber]) {
         for (let forecast of this.data.days[tabNumber]) {
-          let forecastBox = this.createForecastBox(forecast).appendTo(this.tabs[tabNumber]);
-          this.boxesInTabs[tabNumber].push(forecastBox);
+          this.createForecastBox(forecast).appendTo(this.tabs[tabNumber]);
         }
+        this.tabsLoaded[tabNumber] = true;
       }
     }
+    this.lazyLoading = false;
   }
 
-  fillTab(tab: tabris.Tab) {
-    for (let boxesInTab of this.boxesInTabs) {
-      if (boxesInTab === undefined) continue;
-      for (let box of boxesInTab) {
-        box.dispose();
-      }
-      boxesInTab = [];
-    }
+  JITLoad(tab: tabris.Tab) {
     let day = this.tabs.indexOf(tab);
-    this.boxesInTabs[day] = [];
-    setTimeout(() => this.spawnForecastBoxRecurse(day, 0), 200);
-
+    if (!this.tabsLoaded[day]) {
+      setTimeout(() => this.spawnForecastBoxRecurse(day, 0), 200);
+      this.lazyLoading = true;
+    }
+    this.timeoutID = setTimeout(() => this.fillTabs(tab), 900);
   }
 
   spawnForecastBoxRecurse(day: number, forecast: number) {
@@ -99,7 +94,6 @@ export default class ForecastScrollView extends tabris.TabFolder {
       return;
     }
     let forecastBox = this.createForecastBox(this.data.days[day][forecast]).appendTo(this.tabs[day]);
-    this.boxesInTabs[day].push(forecastBox);
     forecastBox.set({
       opacity: 0.0,
     });
