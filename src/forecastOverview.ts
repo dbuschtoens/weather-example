@@ -26,7 +26,7 @@ export default class ForecastOverview extends tabris.Composite {
     }
   }
 
-  createDayInformationBox(dayForecasts: WeatherDatum[]) {
+  private createDayInformationBox(dayForecasts: WeatherDatum[]) {
     let container = new tabris.Composite({
       top: "prev()",
       left: margin,
@@ -46,7 +46,7 @@ export default class ForecastOverview extends tabris.Composite {
     return container;
   }
 
-  createDayText(forecast: WeatherDatum) {
+  private createDayText(forecast: WeatherDatum) {
     return new tabris.TextView({
       top: innerMargin,
       bottom: innerMargin,
@@ -57,7 +57,7 @@ export default class ForecastOverview extends tabris.Composite {
     });
   }
 
-  createTemperatureRangeText(maxTemp: number, minTemp: number) {
+  private createTemperatureRangeText(maxTemp: number, minTemp: number) {
     let container = new tabris.Composite({
       right: margin,
       centerY: 0
@@ -77,7 +77,7 @@ export default class ForecastOverview extends tabris.Composite {
     return container;
   }
 
-  createWeatherText(text: string) {
+  private createWeatherText(text: string) {
     return new tabris.TextView({
       left: "prev() 8",
       centerY: 0,

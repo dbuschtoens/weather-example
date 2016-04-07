@@ -30,7 +30,7 @@ export default class CurrentWeatherView extends tabris.Composite {
     this.createTemperatureText(Math.round(data.list[0].temperature)).appendTo(centerBox);
     this.createWeatherText(data.list[0].weatherDetailed).appendTo(this);
   }
-  createCityNameText(text: string) {
+  private createCityNameText(text: string) {
     return new tabris.TextView({
       top: 0,
       centerX: 0,
@@ -39,7 +39,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: "bold 32px"
     });
   }
-  createText(text: string) {
+  private createText(text: string) {
     return new tabris.TextView({
       top: "prev()",
       centerX: 0,
@@ -48,7 +48,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: smallFont
     });
   }
-  createItalicText(text: string) {
+  private createItalicText(text: string) {
     return new tabris.TextView({
       top: "prev()",
       centerX: 0,
@@ -57,7 +57,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       font: "italic " + smallFont
     });
   }
-  createWeatherIcon(icon: string) {
+  private createWeatherIcon(icon: string) {
     return new tabris.ImageView({
       centerY: 0,
       width: this.iconSize,
@@ -66,7 +66,7 @@ export default class CurrentWeatherView extends tabris.Composite {
       image: "/icons/" + icon + "Big.png"
     });
   }
-  createTemperatureText(temperature: number) {
+  private createTemperatureText(temperature: number) {
     return new tabris.TextView({
       centerY: 0,
       left: "prev()",
@@ -76,7 +76,7 @@ export default class CurrentWeatherView extends tabris.Composite {
     });
   }
 
-  createWeatherText(text: string) {
+  private createWeatherText(text: string) {
     return new tabris.TextView({
       top: "prev()",
       centerX: 0,

@@ -56,17 +56,13 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.fillTabs(this.tabs[0]);
   }
 
-  public getTabIndex(tab: tabris.Tab) {
-    return this.tabs.indexOf(tab);
-  }
-
-  createTab(text: string, isFirst: boolean, isLast: boolean) {
+  private createTab(text: string, isFirst: boolean, isLast: boolean) {
     let tab = new tabris.Tab();
     this.createHeader(text, isFirst, isLast).appendTo(tab);
     return tab;
   }
 
-  fillTabs(selected: tabris.Tab) {
+  private fillTabs(selected: tabris.Tab) {
     let selectedTabNumber = this.tabs.indexOf(selected);
     let maxTabNumber = Math.min(this.tabs.length - 1, selectedTabNumber + 1);
     let minTabNumber = Math.max(0, selectedTabNumber - 1);
@@ -81,7 +77,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.lazyLoading = false;
   }
 
-  JITLoad(tab: tabris.Tab) {
+  private JITLoad(tab: tabris.Tab) {
     let day = this.tabs.indexOf(tab);
     if (!this.tabsLoaded[day]) {
       setTimeout(() => this.spawnForecastBoxRecurse(day, 0), 200);
@@ -90,7 +86,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.timeoutID = setTimeout(() => this.fillTabs(tab), 900);
   }
 
-  spawnForecastBoxRecurse(day: number, forecast: number) {
+  private spawnForecastBoxRecurse(day: number, forecast: number) {
     if (forecast >= this.data.days[day].length) {
       return;
     }
@@ -107,7 +103,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     setTimeout(() => this.spawnForecastBoxRecurse(day, forecast + 1), 20);
   }
 
-  createHeader(text: string, isFirst: boolean, isLast: boolean) {
+  private createHeader(text: string, isFirst: boolean, isLast: boolean) {
     let container = new tabris.Composite({
       top: 0,
       left: 0,
@@ -143,7 +139,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     return container;
   }
 
-  createForecastBox(forecast: WeatherDatum) {
+  private createForecastBox(forecast: WeatherDatum) {
     let container = new tabris.Composite({
       top: "prev()",
       left: 0,
@@ -162,7 +158,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.createWeatherIcon(forecast.weatherIcon).appendTo(forecastBox);
     return container;
   }
-  createTimeText(date: Date) {
+  private createTimeText(date: Date) {
     let minutes = date.getMinutes();
     let hours = date.getHours();
     let hoursString = (hours < 10) ? "0" + hours : hours;
@@ -176,7 +172,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: smallFont
     });
   }
-  createWeatherText(text: string) {
+  private createWeatherText(text: string) {
     return new tabris.TextView({
       centerY: 0,
       left: "prev() 10",
@@ -185,7 +181,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: smallFontItalic
     });
   }
-  createTemperatureText(temperature: number) {
+  private createTemperatureText(temperature: number) {
     return new tabris.TextView({
       right: margin,
       centerY: 0,
@@ -194,7 +190,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: bigFont
     });
   }
-  createWeatherIcon(icon: string) {
+  private createWeatherIcon(icon: string) {
     return new tabris.ImageView({
       right: 60,
       width: iconSize,
