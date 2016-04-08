@@ -15,6 +15,7 @@ Finally, write `tsc` to run the Typescript compiler that will generate the JavaS
 
 
 ### Weather icons: [Pixeden](http://www.pixeden.com/conceptual-icons/the-weather-icons-set)
+
 #### License:
 
 All our resources* are royalty free for use in both personal and commercial projects.
@@ -29,7 +30,9 @@ IMPORTANT You cannot use any resources from the psd web templates category to cr
 If you would like to share one of our resource you can do so making a link to the specific resource page on Pixeden.com or/and use our preview images. No HOTLINKING is allowed i.e. you cannot make a direct link to the download or/and the images hosted on Pixeden.com.
 
 * any files downloaded from the site Pixeden.com
+
 ### Cloud images: [Obsidian Dawn](http://www.obsidiandawn.com/clouds-ii-photoshop-gimp-brushes)
+
 #### Terms of Use
 
 To use our resources, you must either:
