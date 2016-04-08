@@ -6,23 +6,23 @@ import Graph from "./weatherGraph";
 import BackgroundLayer from "./backgroundLayer";
 
 tabris.ui.set("toolbarVisible", false);
+tabris.device.on("change:orientation", () => layoutUI());
 
 let page = new tabris.Page({
   title: "Weather Forecast",
   topLevel: true,
+  background: "rgb(83,100,160)"
 });
 
 let scrollView = new tabris.ScrollView({
   left: 0,
   top: 0,
   right: 0,
-  background: "rgb(83,100,160)"
 }).appendTo(page);
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
   right: 0,
-  height: 1210
 }).appendTo(scrollView);
 
 let citySelector = createCitySelector().appendTo(scrollView);
@@ -37,21 +37,17 @@ if (localStorage.getItem("city")) {
 }
 
 function drawNewCity(data: WeatherData) {
-  tabris.device.off();
   page.find(".weatherInfo").dispose();
   createWeatherInformation(data);
   layoutUI();
-  background.generateNewClouds();
-  tabris.device.on("change:orientation", (device, orientation) => {
-    layoutUI();
-    background.generateNewClouds();
-  });
 }
 
 
 function createWeatherInformation(data: WeatherData) {
   let properties = { data: data, class: "weatherInfo" };
-  new tabris.Composite({ class: "weatherInfo", id: "container" }).appendTo(scrollView);
+  new tabris.Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
+    background.set("height", bounds.height + bounds.top);
+  }).appendTo(scrollView);
   new CurrentWeatherView(properties).set("id", "current").appendTo(page);
   new Overview(properties).set("id", "overview").appendTo(page);
   let graph = new Graph(properties).set("id", "graph").appendTo(page);
@@ -78,6 +74,9 @@ function layoutUI() {
   let orientation = tabris.device.get("orientation");
   let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
   let composite = <tabris.Composite>page.find("#container")[0];
+  if (!composite) {
+    return;
+  }
   composite.set({
     top: "prev()",
     left: 0,
@@ -86,10 +85,10 @@ function layoutUI() {
   page.find("#current").set({ top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
   page.find("#overview").set({ top: "prev()", left: 0, right: 0 }).appendTo(composite);
   page.find("#graph")[0].set({
-    "top": landscape ? 40 : "prev()",
+    "top": landscape ? 55 : "prev()",
     "right": 0,
     "width": tabris.device.get("screenWidth") * (landscape ? 0.45 : 1),
-    "height": tabris.device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 75 : 20)
+    "height": tabris.device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 90 : 20)
   }).appendTo(landscape ? page : composite).draw();
   page.find("#forecast").set({ top: "prev() 4", left: 0 }).appendTo(composite);
 }

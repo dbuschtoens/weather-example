@@ -8,9 +8,10 @@ export default class BackgroundLayer extends tabris.Composite {
     super(properties);
     this.clouds = [];
     this.distance = [];
+    this.on("resize", () => this.generateNewClouds());
   }
 
-  public generateNewClouds() {
+  private generateNewClouds() {
     for (let cloud of this.clouds) {
       cloud.dispose();
     }
