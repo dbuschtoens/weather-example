@@ -13,7 +13,8 @@ const bigFont = "thin 28px sans-serif";
 
 const headerHeight = 50;
 const forecastBoxHeight = 45;
-const iconSize = 35;
+const weatherIconSize = 35;
+const navigationIconSize = 50;
 
 interface ForecastTabViewProperties extends tabris.TabFolderProperties {
   data: WeatherData;
@@ -29,8 +30,6 @@ export default class ForecastTabView extends tabris.TabFolder {
 
 
   constructor(properties: ForecastTabViewProperties) {
-    properties.class = "weatherInfo";
-    properties.id = "forecast";
     properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
     properties.paging = true;
@@ -118,23 +117,29 @@ export default class ForecastTabView extends tabris.TabFolder {
       left: 0,
       right: 0,
       height: headerHeight,
-      background: headerBoxColor
     });
+    let background = new tabris.Composite({
+      top: 0,
+      left: margin,
+      right: margin,
+      height: headerHeight,
+      background: headerBoxColor
+    }).appendTo(container)
     new tabris.TextView({
       text: text,
       centerY: 0,
       centerX: 0,
       font: bigFont,
       textColor: headerTextColor
-    }).appendTo(container);
-/*    if (!isFirst) {
+    }).appendTo(background);
+    if (!isFirst) {
       new tabris.ImageView({
         image: "./icons/arrowLeft.png",
         left: 0,
         centerY: 0,
         height: 50,
-        highlightOnTouch: true
-      }).appendTo(container);
+        opacity: 0.6
+      }).appendTo(background);
     }
     if (!isLast) {
       new tabris.ImageView({
@@ -142,10 +147,10 @@ export default class ForecastTabView extends tabris.TabFolder {
         right: 0,
         centerY: 0,
         height: 50,
-        highlightOnTouch: true
-      }).appendTo(container);
+        opacity: 0.6
+      }).appendTo(background);
     }
-*/    return container;
+    return container;
   }
 
   private createForecastBox(forecast: WeatherDatum) {
@@ -206,8 +211,8 @@ export default class ForecastTabView extends tabris.TabFolder {
   private createWeatherIcon(icon: string) {
     return new tabris.ImageView({
       right: 60,
-      width: iconSize,
-      height: iconSize,
+      width: weatherIconSize,
+      height: weatherIconSize,
       centerY: 0,
       image: "/icons/" + icon + ".png"
     });

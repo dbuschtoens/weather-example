@@ -16,8 +16,6 @@ export default class CurrentWeatherView extends tabris.Composite {
   private iconSize: number;
 
   constructor(properties: CurrentWeatherViewProperties) {
-    properties.class = "weatherInfo";
-    properties.id = "current";
     super(properties);
     let data = properties.data;
     let height = Math.max(200, <number>properties.height); // TODO fix this

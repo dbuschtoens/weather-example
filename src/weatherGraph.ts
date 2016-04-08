@@ -27,8 +27,6 @@ export default class WeatherGraph extends tabris.Canvas {
   public dayColor: string;
 
   constructor(properties: WeatherGraphProperties) {
-    properties.class = "weatherInfo";
-    properties.id = "graph";
     super(properties);
     this.nightColor = "rgba(103,113,145,0.392)";
     this.dayColor = "rgba(131,156,188,0.286)";
