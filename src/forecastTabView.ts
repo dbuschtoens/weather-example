@@ -112,45 +112,27 @@ export default class ForecastTabView extends tabris.TabFolder {
 
   // TODO: SMALLER!
   private createHeader(text: string, isFirst: boolean, isLast: boolean) {
-    let container = new tabris.Composite({
-      top: 0,
-      left: 0,
-      right: 0,
-      height: headerHeight,
-    });
-    let background = new tabris.Composite({
-      top: 0,
-      left: margin,
-      right: margin,
-      height: headerHeight,
-      background: headerBoxColor
-    }).appendTo(container)
-    new tabris.TextView({
-      text: text,
-      centerY: 0,
-      centerX: 0,
-      font: bigFont,
-      textColor: headerTextColor
-    }).appendTo(background);
+    let container = new tabris.Composite({ top: 0, left: 0, right: 0, height: headerHeight, });
+    let background = new tabris.Composite({ top: 0, left: margin, right: margin, background: headerBoxColor })
+      .appendTo(container)
+    new tabris.TextView({ text: text, centerY: 0, centerX: 0, font: bigFont, textColor: headerTextColor })
+      .appendTo(background);
     if (!isFirst) {
-      new tabris.ImageView({
-        image: "./icons/arrowLeft.png",
-        left: 0,
-        centerY: 0,
-        height: 50,
-        opacity: 0.6
-      }).appendTo(background);
+      this.createArrowImage("left").appendTo(background);
     }
     if (!isLast) {
-      new tabris.ImageView({
-        image: "./icons/arrowRight.png",
-        right: 0,
-        centerY: 0,
-        height: 50,
-        opacity: 0.6
-      }).appendTo(background);
+      this.createArrowImage("right").appendTo(background);
     }
     return container;
+  }
+
+  private createArrowImage(direction: string) {
+    return new tabris.ImageView({
+      image: "./icons/arrow" + direction + ".png",
+      centerY: 0,
+      height: 50,
+      opacity: 0.6
+    }).set(direction, 0);
   }
 
   private createForecastBox(forecast: WeatherDatum) {
