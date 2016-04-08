@@ -14,6 +14,8 @@ const hourLength = 60 * 60 * 1000;
 const dayLength = 24 * 60 * 60 * 1000;
 const margins = { top: 20, left: 30, bottom: 13, right: 10 };
 const maxZoom = 5;
+const nightColor = "rgba(103,113,145,0.392)";
+const dayColor = "rgba(131,156,188,0.286)";
 
 interface WeatherGraphProperties extends tabris.CanvasProperties {
   data: WeatherData;
@@ -23,13 +25,9 @@ export default class WeatherGraph extends tabris.Canvas {
   private dataPoints: WeatherDatum[];
   private data: WeatherData;
   private scale: { minX: number, maxX: number, minY: number, maxY: number };
-  public nightColor: string;
-  public dayColor: string;
 
   constructor(properties: WeatherGraphProperties) {
     super(properties);
-    this.nightColor = "rgba(103,113,145,0.392)";
-    this.dayColor = "rgba(131,156,188,0.286)";
     this.data = properties.data;
     this.scale = {
       minX: this.data.list[0].date.getTime(),
@@ -39,21 +37,6 @@ export default class WeatherGraph extends tabris.Canvas {
     };
     this.initDataPoints();
     this.initScale();
-    // this.draw();
-  }
-
-  public zoom(factor: number) {
-    let meanTime = (this.scale.maxX + this.scale.minX) / 2;
-    let halfRange = this.scale.maxX - meanTime;
-    let [newMin, newMax] = [meanTime - (halfRange * factor), meanTime + (halfRange * factor)];
-    let [minTime, maxTime] = [this.data.list[0].date.getTime(), this.data.list[this.data.list.length - 1].date.getTime()];
-    let offset = newMin < minTime ? minTime - newMin : newMax > maxTime ? maxTime - newMax : 0;
-    newMin += offset;
-    newMax += offset;
-    if ((newMax - newMin) >= (maxTime - minTime)) {
-      [newMin, newMax] = [minTime, maxTime];
-    };
-    this.setScale(newMin, newMax);
   }
 
   public setScale(newMin: number, newMax: number) {
@@ -106,14 +89,14 @@ export default class WeatherGraph extends tabris.Canvas {
     let startTime = Math.min(sunriseTime, sunsetTime);
     let endTime = Math.max(sunriseTime, sunsetTime);
 
-    this.drawArea(ctx, now, startTime, isDay ? this.dayColor : this.nightColor);
+    this.drawArea(ctx, now, startTime, isDay ? dayColor : nightColor);
     isDay = !isDay;
     while (endTime < this.scale.maxX) {
-      this.drawArea(ctx, startTime, endTime, isDay ? this.dayColor : this.nightColor);
+      this.drawArea(ctx, startTime, endTime, isDay ? dayColor : nightColor);
       isDay = !isDay;
       [startTime, endTime] = [endTime, startTime + dayLength];
     }
-    this.drawArea(ctx, startTime, this.scale.maxX, isDay ? this.dayColor : this.nightColor);
+    this.drawArea(ctx, startTime, this.scale.maxX, isDay ? dayColor : nightColor);
   }
 
   private drawArea(ctx: any, startTime: number, endTime: number, color: string) {
