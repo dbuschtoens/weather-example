@@ -17,6 +17,8 @@ interface ForecastOverviewProperties extends tabris.CompositeProperties {
 export default class ForecastOverview extends tabris.Composite {
 
   constructor(properties: ForecastOverviewProperties) {
+    properties.class = "weatherInfo";
+    properties.id = "overview";
     super(properties);
     let data = properties.data;
     this.createDayInformationBox(data.days[0]).set("top", 0).appendTo(this);
@@ -25,6 +27,7 @@ export default class ForecastOverview extends tabris.Composite {
     }
   }
 
+  // TODO: ser parent here instead of returning child
   private createDayInformationBox(dayForecasts: WeatherDatum[]) {
     let container = new tabris.Composite({
       top: "prev()",

@@ -35,6 +35,7 @@ function fetchWithBackoff(url: string, waitTime?: number): Promise<Response> {
     }, waitTime);
   });
 }
+
 function validateResponse(response: any) {
   if (!response.ok) {
     console.log("weatherAPI status code : " + response.status);
@@ -73,7 +74,7 @@ export class WeatherData {
     }
   }
 
-  static getAverageWeatherDescription(day: WeatherDatum[]): string {
+  static getAverageWeatherDescription(day: WeatherDatum[]): string { // ? : 
     let weather = "";
     if (day.filter((forecast) => (forecast.weather === "Clouds")).length >= 3) {
       weather += "cloudy, ";
@@ -85,9 +86,12 @@ export class WeatherData {
       }
       weather += "rain ";
     }
-    if (weather === "") weather = "clear";
+    if (weather === "") {
+      weather = "clear";
+    }
     return weather;
   }
+
   public getWeatherAtDate(date: Date): WeatherDatum {
     if (date < this.list[0].date) {
       return this.list[0];

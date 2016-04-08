@@ -1,7 +1,9 @@
 
 import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255, 255)";
+const headerTextColor = "rgb(255, 255, 255)";
 const infoBoxColor = "rgba(0, 0, 0, 0.2)";
+const headerBoxColor = "rgba(0,0,0,0.4)"
 const margin = 5;
 const innerMargin = 6;
 const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -13,7 +15,7 @@ const headerHeight = 50;
 const forecastBoxHeight = 45;
 const iconSize = 35;
 
-interface ForecastScrollViewProperties extends tabris.TabFolderProperties {
+interface ForecastTabViewProperties extends tabris.TabFolderProperties {
   data: WeatherData;
 }
 
@@ -26,7 +28,9 @@ export default class ForecastTabView extends tabris.TabFolder {
   private timeoutID: number;
 
 
-  constructor(properties: ForecastScrollViewProperties) {
+  constructor(properties: ForecastTabViewProperties) {
+    properties.class = "weatherInfo";
+    properties.id = "forecast";
     properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
     properties.paging = true;
@@ -80,6 +84,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.lazyLoading = false;
   }
 
+  // TODO: jitLoad
   private JITLoad(tab: tabris.Tab) {
     let day = this.tabs.indexOf(tab);
     if (!this.tabsLoaded[day]) {
@@ -106,22 +111,23 @@ export default class ForecastTabView extends tabris.TabFolder {
     setTimeout(() => this.spawnForecastBoxRecurse(day, forecast + 1), 20);
   }
 
+  // TODO: SMALLER!
   private createHeader(text: string, isFirst: boolean, isLast: boolean) {
     let container = new tabris.Composite({
       top: 0,
       left: 0,
       right: 0,
       height: headerHeight,
-      background: "rgba(255,255,255,0.8)"
+      background: headerBoxColor
     });
     new tabris.TextView({
       text: text,
       centerY: 0,
       centerX: 0,
       font: bigFont,
-      textColor: "#000000"
+      textColor: headerTextColor
     }).appendTo(container);
-    if (!isFirst) {
+/*    if (!isFirst) {
       new tabris.ImageView({
         image: "./icons/arrowLeft.png",
         left: 0,
@@ -139,7 +145,7 @@ export default class ForecastTabView extends tabris.TabFolder {
         highlightOnTouch: true
       }).appendTo(container);
     }
-    return container;
+*/    return container;
   }
 
   private createForecastBox(forecast: WeatherDatum) {
@@ -161,6 +167,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.createWeatherIcon(forecast.weatherIcon).appendTo(forecastBox);
     return container;
   }
+
   private createTimeText(date: Date) {
     let minutes = date.getMinutes();
     let hours = date.getHours();
@@ -175,6 +182,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: smallFont
     });
   }
+
   private createWeatherText(text: string) {
     return new tabris.TextView({
       centerY: 0,
@@ -184,6 +192,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: smallFontItalic
     });
   }
+
   private createTemperatureText(temperature: number) {
     return new tabris.TextView({
       right: margin,
@@ -193,6 +202,7 @@ export default class ForecastTabView extends tabris.TabFolder {
       font: bigFont
     });
   }
+
   private createWeatherIcon(icon: string) {
     return new tabris.ImageView({
       right: 60,
@@ -202,4 +212,5 @@ export default class ForecastTabView extends tabris.TabFolder {
       image: "/icons/" + icon + ".png"
     });
   }
+
 }

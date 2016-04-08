@@ -3,12 +3,13 @@ import {WeatherData, WeatherDatum} from "./weatherService";
 
 const daysNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const uiFont = "12px sans-serif";
-const uiLineColor = "rgba(20,20,20,0.3)";
-const uiLineWidth = 2;
-const uiTextColor = "rgba(20,20,20,0.5)";
+const uiLineColor = "rgba(255,255,255,0.3)";
+const uiTextColor = "rgba(255,255,255,0.5)";
+const graphLineColor = "rgba(255,255,255,0.55)";
+const uiLineWidth = 1.5;
+const graphLineWidth = 1;
 const minHorizontalDistance = 33;
 const minVerticalDistance = 25;
-const graphLineColor = "rgba(20,20,20,0.7)";
 const hourLength = 60 * 60 * 1000;
 const dayLength = 24 * 60 * 60 * 1000;
 const margins = { top: 20, left: 30, bottom: 13, right: 10 };
@@ -26,6 +27,8 @@ export default class WeatherGraph extends tabris.Canvas {
   public dayColor: string;
 
   constructor(properties: WeatherGraphProperties) {
+    properties.class = "weatherInfo";
+    properties.id = "graph";
     super(properties);
     this.nightColor = "rgba(103,113,145,0.392)";
     this.dayColor = "rgba(131,156,188,0.286)";
@@ -121,13 +124,13 @@ export default class WeatherGraph extends tabris.Canvas {
     ctx.fillRect(this.getX(startTime),
       this.getY(this.scale.maxY),
       this.getX(endTime) - this.getX(startTime),
-      graphHeight);
+      graphHeight
+    );
   };
 
   private drawTemperatureScale(ctx: any) {
     let degreeHeight = this.getY(this.scale.minY) - this.getY(this.scale.minY + 1);
-    let degreeStep = (degreeHeight > minVerticalDistance) ? 1
-      : (2 * degreeHeight > minVerticalDistance) ? 2 : 5;
+    let degreeStep = (degreeHeight > minVerticalDistance) ? 1 : (2 * degreeHeight > minVerticalDistance) ? 2 : 5;
     let minHeight = Math.ceil(this.scale.minY / degreeStep) * degreeStep;
     ctx.strokeStyle = uiLineColor;
     ctx.lineWidth = uiLineWidth;
@@ -176,6 +179,7 @@ export default class WeatherGraph extends tabris.Canvas {
     ctx.lineTo(this.getX(time), this.getY(this.scale.maxY) - extraLength);
     ctx.stroke();
   }
+
   private drawDayLabel(ctx: any, day: number) {
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
@@ -206,8 +210,7 @@ export default class WeatherGraph extends tabris.Canvas {
   }
 
   private estimateDerivative(prev: Point, point: Point, next: Point): number {
-    if ((prev.y > point.y && next.y > point.y)
-      || (prev.y < point.y && next.y < point.y)) {
+    if ((prev.y > point.y && next.y > point.y) || (prev.y < point.y && next.y < point.y)) {
       return 0;
     } else {
       return (next.y - prev.y) / (next.x - prev.x);
@@ -216,7 +219,7 @@ export default class WeatherGraph extends tabris.Canvas {
 
   private drawHermiteInterpolation(ctx: any, points: Point[]) {
     ctx.strokeStyle = graphLineColor;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = graphLineWidth;
     for (let i = 0; i < points.length - 1; i++) {
       ctx.beginPath();
       let [b0, b3] = [points[i], points[i + 1]];

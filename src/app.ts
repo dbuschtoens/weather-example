@@ -50,12 +50,40 @@ function drawNewCity(data: WeatherData) {
 
 
 function createWeatherInformation(data: WeatherData) {
-  let properties = {data: data, class: "weatherInfo"};
-  new CurrentWeatherView(properties).set("id", "current").appendTo(page)
-  new Overview(properties).set("id", "overview").appendTo(page);
-  let graph = new Graph(properties).set("id", "graph").appendTo(page);
-
-  new ForecastTabView(properties).set("id", "forecast").on("change:selection", (widget, selection) => {
+  // TODO: make widget creation one-lines SOMEHOW
+  let currentWeatherView = new CurrentWeatherView({
+    data: data,
+    class: "weatherInfo",
+    id: "current",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 200
+  }).appendTo(page)
+  let overview = new Overview({
+    class: "weatherInfo",
+    id: "overview",
+    data: data,
+    top: "prev()",
+    left: 0,
+    right: 0
+  }).appendTo(page);
+  let graph = new Graph({
+    data: data,
+    class: "weatherInfo",
+    id: "graph",
+    top: "prev()",
+    right: 0,
+    height: tabris.device.get("screenHeight") / 3 - 20,
+    width: tabris.device.get("screenWidth")
+  }).appendTo(page);
+  let forecastTabView = new ForecastTabView({
+    data: data,
+    class: "weatherInfo",
+    id: "forecast",
+    top: "prev() 4",
+    left: 0
+  }).on("change:selection", (widget, selection) => {
     let day = (<ForecastTabView>widget).getTabIndex(selection);
     if (day === 0) {
       animateGraphChange(graph, data.list[0].date.getTime(), data.list[data.list.length - 1].date.getTime());
@@ -68,21 +96,24 @@ function createWeatherInformation(data: WeatherData) {
   }).appendTo(page);
 }
 
-
 function layoutUI() {
   let orientation = tabris.device.get("orientation");
   let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
-  let composite = new tabris.Composite({
+  let composite = new tabris.Composite({ // Not here
     top: "prev()",
     left: 0,
     width: landscape ? tabris.device.get("screenWidth") * 0.55 : tabris.device.get("screenWidth"),
     class: "weatherInfo"
   }).appendTo(scrollView);
+  // TODO: use apply if possible
+  page.apply
   page.find("#current").set("LayoutData", { top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
   page.find("#overview").set("LayoutData", { top: "prev()", left: 0, right: 0 }).appendTo(composite);
   let graph = page.find("#graph")[0];
   if (landscape) {
-    graph.set("top", 40);
+    // TODO: use device.screenXXX if possible
+    // do not repeat "graph" (use apply?)
+    graph.set("top", 40)
     graph.set("width", tabris.device.get("screenWidth") * 0.45);
     graph.set("height", tabris.device.get("screenHeight") - 75);
     graph.appendTo(page);
@@ -102,10 +133,11 @@ function createCitySelector() {
     centerX: 0,
     message: "enter city",
     textColor: "#FFFFFF",
+    background: "rgba(255, 255, 255, 0.8)",
     font: "normal thin 32px sans-serif"
-  }).on("focus", (widget) => widget.set("text", "")
-    ).on("blur", (widget) => widget.set("text", localStorage.getItem("city") || "")
-    ).on("accept", loadDataFromInput);
+  }).on("focus", (widget) => widget.set("text", ""))
+    .on("blur", (widget) => widget.set("text", localStorage.getItem("city") || ""))
+    .on("accept", loadDataFromInput);
 }
 
 function loadDataFromInput(widget: tabris.TextInput, text: string) {

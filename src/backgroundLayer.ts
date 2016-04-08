@@ -44,7 +44,6 @@ export default class BackgroundLayer extends tabris.Composite {
       result.push(initialOffset + (i * 0.8 * (height / n) + i * extraOffset));
       this.distance[i] = Math.random() * 10;
     }
-
     return result;
   }
 
@@ -66,4 +65,5 @@ export default class BackgroundLayer extends tabris.Composite {
       }
     });
   }
+
 }
