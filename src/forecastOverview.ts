@@ -18,17 +18,14 @@ export default class ForecastOverview extends tabris.Composite {
 
   constructor(properties: ForecastOverviewProperties) {
     super(properties);
-    let data = properties.data;
-    this.createDayInformationBox(data.days[0]).set("top", 0).appendTo(this);
-    for (let index = 1; index < data.days.length; index++) {
-      this.createDayInformationBox(data.days[index]).appendTo(this);
+    for (let day of properties.data.days) {
+      this.createDayInformationBox(day).appendTo(this);
     }
   }
 
-  // TODO: ser parent here instead of returning child
   private createDayInformationBox(dayForecasts: WeatherDatum[]) {
     let container = new tabris.Composite({
-      top: "prev()",
+      top: this.children().length === 0 ? 0 : "prev()",
       left: margin,
       right: margin,
     });
