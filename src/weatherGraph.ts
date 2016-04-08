@@ -39,7 +39,7 @@ export default class WeatherGraph extends tabris.Canvas {
     };
     this.initDataPoints();
     this.initScale();
-    this.draw();
+    // this.draw();
   }
 
   public zoom(factor: number) {
