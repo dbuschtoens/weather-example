@@ -74,22 +74,26 @@ export class WeatherData {
     }
   }
 
-  static getAverageWeatherDescription(day: WeatherDatum[]): string { // ? : 
-    let weather = "";
-    if (day.filter((forecast) => (forecast.weather === "Clouds")).length >= 3) {
-      weather += "cloudy, ";
+  static getAverageWeatherDescription(day: WeatherDatum[]): string {
+    let cloudForecasts = day.filter((forecast) => (forecast.weather === "Clouds")).length;
+    let rainForecasts = day.filter((forecast) => (forecast.weather === "Rain")).length;
+    let snowForecasts = day.filter((forecast) => (forecast.weather === "Snow")).length;
+    if (rainForecasts > 3) {
+      return "rain";
     }
-    if (day.some((forecast) => (forecast.weather === "Rain"))) {
-      if (day.filter((forecast) => (forecast.weather === "Rain")).length <= 3) {
-        if (weather === "") weather = "clear, ";
-        weather += "some ";
-      }
-      weather += "rain ";
+    if (snowForecasts > 3) {
+      return "snow";
     }
-    if (weather === "") {
-      weather = "clear";
+    if (cloudForecasts > 2 && rainForecasts > 0) {
+      return "cloudy, some rain";
     }
-    return weather;
+    if (cloudForecasts > 2 && snowForecasts > 0) {
+      return "cloudy, some snow";
+    }
+    if (cloudForecasts > 3) {
+      return "cloudy";
+    }
+    return "clear";
   }
 
   public getWeatherAtDate(date: Date): WeatherDatum {
