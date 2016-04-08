@@ -15,6 +15,9 @@ export default class BackgroundLayer extends tabris.Composite {
     for (let cloud of this.clouds) {
       cloud.dispose();
     }
+    if (this.get("bounds").width === 0 || this.get("bounds").height === 0) {
+      return;
+    }
     this.clouds = [];
     this.distance = [];
     let count = 6;
