@@ -3,7 +3,7 @@ import {WeatherData, WeatherDatum} from "./weatherService";
 const textColor = "rgb(255, 255, 255)";
 const headerTextColor = "rgb(255, 255, 255)";
 const infoBoxColor = "rgba(0, 0, 0, 0.2)";
-const headerBoxColor = "rgba(0,0,0,0.4)"
+const headerBoxColor = "rgba(0,0,0,0.4)";
 const margin = 5;
 const innerMargin = 6;
 const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -28,7 +28,6 @@ export default class ForecastTabView extends tabris.TabFolder {
   private lazyLoading: boolean;
   private timeoutID: number;
 
-
   constructor(properties: ForecastTabViewProperties) {
     properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
@@ -49,13 +48,13 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.on("change:selection", (widget: ForecastTabView, selection) => {
       if (widget.lazyLoading) {
         clearTimeout(widget.timeoutID);
-        setTimeout(() => widget.JITLoad(selection), 180);
+        setTimeout(() => widget.jitLoad(selection), 180);
       } else {
         widget.lazyLoading = true;
-        widget.timeoutID = setTimeout(() => widget.fillTabs(selection), 800);
+        widget.timeoutID = setTimeout(() => widget.loadTabs(selection), 800);
       }
     });
-    this.fillTabs(this.tabs[0]);
+    this.loadTabs(this.tabs[0]);
   }
 
   public getTabIndex(tab: tabris.Tab) {
@@ -68,7 +67,7 @@ export default class ForecastTabView extends tabris.TabFolder {
     return tab;
   }
 
-  private fillTabs(selected: tabris.Tab) {
+  private loadTabs(selected: tabris.Tab) {
     let selectedTabNumber = this.tabs.indexOf(selected);
     let maxTabNumber = Math.min(this.tabs.length - 1, selectedTabNumber + 1);
     let minTabNumber = Math.max(0, selectedTabNumber - 1);
@@ -83,14 +82,13 @@ export default class ForecastTabView extends tabris.TabFolder {
     this.lazyLoading = false;
   }
 
-  // TODO: jitLoad
-  private JITLoad(tab: tabris.Tab) {
+  private jitLoad(tab: tabris.Tab) {
     let day = this.tabs.indexOf(tab);
     if (!this.tabsLoaded[day]) {
       setTimeout(() => this.spawnForecastBoxRecurse(day, 0), 200);
       this.lazyLoading = true;
     }
-    this.timeoutID = setTimeout(() => this.fillTabs(tab), 900);
+    this.timeoutID = setTimeout(() => this.loadTabs(tab), 900);
   }
 
   private spawnForecastBoxRecurse(day: number, forecast: number) {
@@ -110,7 +108,6 @@ export default class ForecastTabView extends tabris.TabFolder {
     setTimeout(() => this.spawnForecastBoxRecurse(day, forecast + 1), 20);
   }
 
-  // TODO: SMALLER!
   private createHeader(text: string, isFirst: boolean, isLast: boolean) {
     let container = new tabris.Composite({ top: 0, left: 0, right: 0, height: headerHeight, });
     let background = new tabris.Composite({ top: 0, left: margin, right: margin, background: headerBoxColor })
