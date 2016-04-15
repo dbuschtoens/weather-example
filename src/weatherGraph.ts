@@ -1,4 +1,4 @@
-
+import {CanvasProperties, Canvas} from "tabris";
 import {WeatherData, WeatherDatum} from "./weatherService";
 
 const daysNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -17,11 +17,11 @@ const maxZoom = 5;
 const nightColor = "rgba(103,113,145,0.392)";
 const dayColor = "rgba(131,156,188,0.286)";
 
-interface WeatherGraphProperties extends tabris.CanvasProperties {
+interface WeatherGraphProperties extends CanvasProperties {
   data: WeatherData;
 }
 
-export default class WeatherGraph extends tabris.Canvas {
+export default class WeatherGraph extends Canvas {
   private dataPoints: WeatherDatum[];
   private data: WeatherData;
   private scale: { minX: number, maxX: number, minY: number, maxY: number };

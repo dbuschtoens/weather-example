@@ -1,4 +1,6 @@
+import {CompositeProperties, Composite, ImageView, TextView} from "tabris";
 import {WeatherData, WeatherDatum} from "./weatherService";
+
 const textColor = "rgb(255, 255, 255)";
 const minTempColor = "rgb(245, 245, 255)";
 const infoBoxColor = "rgba(0, 0, 0, 0.2)";
@@ -10,11 +12,11 @@ const smallFont = "thin 19px sans-serif";
 const bigFont = "thin 28px sans-serif";
 const smallFontItalic = "italic thin 22px sans-serif";
 
-interface ForecastOverviewProperties extends tabris.CompositeProperties {
+interface ForecastOverviewProperties extends CompositeProperties {
   data: WeatherData;
 }
 
-export default class ForecastOverview extends tabris.Composite {
+export default class ForecastOverview extends Composite {
 
   constructor(properties: ForecastOverviewProperties) {
     super(properties);
@@ -24,12 +26,12 @@ export default class ForecastOverview extends tabris.Composite {
   }
 
   private createDayInformationBox(dayForecasts: WeatherDatum[]) {
-    let container = new tabris.Composite({
+    let container = new Composite({
       top: this.children().length === 0 ? 0 : "prev()",
       left: margin,
       right: margin,
     });
-    let infoBox = <tabris.Composite>new tabris.Composite({
+    let infoBox = <Composite>new Composite({
       top: margin,
       left: margin,
       right: margin,
@@ -44,7 +46,7 @@ export default class ForecastOverview extends tabris.Composite {
   }
 
   private createDayText(forecast: WeatherDatum) {
-    return new tabris.TextView({
+    return new TextView({
       top: innerMargin,
       bottom: innerMargin,
       left: innerMargin,
@@ -55,16 +57,16 @@ export default class ForecastOverview extends tabris.Composite {
   }
 
   private createTemperatureRangeText(maxTemp: number, minTemp: number) {
-    let container = new tabris.Composite({
+    let container = new Composite({
       right: margin,
       centerY: 0
     });
-    let maxTempText = new tabris.TextView({
+    let maxTempText = new TextView({
       text: Math.round(maxTemp) + "°C /",
       textColor: textColor,
       font: bigFont
     }).appendTo(container);
-    new tabris.TextView({
+    new TextView({
       left: "prev()",
       text: Math.round(minTemp) + "°C",
       textColor: minTempColor,
@@ -75,7 +77,7 @@ export default class ForecastOverview extends tabris.Composite {
   }
 
   private createWeatherText(text: string) {
-    return new tabris.TextView({
+    return new TextView({
       left: "prev() 8",
       centerY: 0,
       text: text,

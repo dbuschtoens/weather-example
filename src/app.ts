@@ -4,17 +4,18 @@ import CurrentWeatherView from "./currentWeatherView";
 import Overview from "./forecastOverview";
 import Graph from "./weatherGraph";
 import BackgroundLayer from "./backgroundLayer";
+import {ui, device, Page, ScrollView, ActivityIndicator, Composite, Tab, TextInput} from "tabris";
 
-tabris.ui.set("toolbarVisible", false);
-tabris.device.on("change:orientation", () => layoutUI());
+ui.set("toolbarVisible", false);
+device.on("change:orientation", () => layoutUI());
 
-let page = new tabris.Page({
+let page = new Page({
   title: "Weather Forecast",
   topLevel: true,
   background: "rgb(83,100,160)"
 });
 
-let scrollView = new tabris.ScrollView({
+let scrollView = new ScrollView({
   left: 0,
   top: 0,
   right: 0,
@@ -45,7 +46,7 @@ function drawNewCity(data: WeatherData) {
 
 function createWeatherInformation(data: WeatherData) {
   let properties = { data: data, class: "weatherInfo" };
-  new tabris.Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
+  new Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
     background.set("height", bounds.height + bounds.top);
   }).appendTo(scrollView);
   new CurrentWeatherView(properties).set("id", "current").appendTo(page);
@@ -57,7 +58,7 @@ function createWeatherInformation(data: WeatherData) {
     }).appendTo(page);
 }
 
-function changeGraphFocus(forecastTabView: ForecastTabView, selection: tabris.Tab, data: WeatherData) {
+function changeGraphFocus(forecastTabView: ForecastTabView, selection: Tab, data: WeatherData) {
   let day = forecastTabView.getTabIndex(selection);
   let graph = page.find("#graph")[0];
   if (day === 0) {
@@ -71,30 +72,30 @@ function changeGraphFocus(forecastTabView: ForecastTabView, selection: tabris.Ta
 }
 
 function layoutUI() {
-  let orientation = tabris.device.get("orientation");
+  let orientation = device.get("orientation");
   let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
-  let composite = <tabris.Composite>page.find("#container")[0];
+  let composite = <Composite>page.find("#container")[0];
   if (!composite) {
     return;
   }
   composite.set({
     top: "prev()",
     left: 0,
-    width: landscape ? tabris.device.get("screenWidth") * 0.55 : tabris.device.get("screenWidth")
+    width: landscape ? device.get("screenWidth") * 0.55 : device.get("screenWidth")
   });
   page.find("#current").set({ top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
   page.find("#overview").set({ top: "prev()", left: 0, right: 0 }).appendTo(composite);
   page.find("#graph")[0].set({
     "top": landscape ? 55 : "prev()",
     "right": 0,
-    "width": tabris.device.get("screenWidth") * (landscape ? 0.45 : 1),
-    "height": tabris.device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 90 : 20)
+    "width": device.get("screenWidth") * (landscape ? 0.45 : 1),
+    "height": device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 90 : 20)
   }).appendTo(landscape ? page : composite).draw();
   page.find("#forecast").set({ top: "prev() 4", left: 0 }).appendTo(composite);
 }
 
 function createCitySelector() {
-  return new tabris.TextInput({
+  return new TextInput({
     top: 0,
     centerX: 0,
     message: "enter city",
@@ -106,8 +107,8 @@ function createCitySelector() {
     .on("accept", loadDataFromInput);
 }
 
-function loadDataFromInput(widget: tabris.TextInput, text: string) {
-  let activityIndicator = new tabris.ActivityIndicator({ centerX: 0, centerY: 0 }).appendTo(page);
+function loadDataFromInput(widget: TextInput, text: string) {
+  let activityIndicator = new ActivityIndicator({ centerX: 0, centerY: 0 }).appendTo(page);
   pollWeatherData(text)
     .then((data) => {
       widget.set("text", data.cityName + ", " + data.countryName);

@@ -1,10 +1,11 @@
 import {WeatherData} from "./weatherService";
+import {ImageView, Composite, CompositeProperties, Transformation} from "tabris";
 
-export default class BackgroundLayer extends tabris.Composite {
-  private clouds: tabris.ImageView[];
+export default class BackgroundLayer extends Composite {
+  private clouds: ImageView[];
   private distance: number[];
 
-  constructor(properties: tabris.CompositeProperties) {
+  constructor(properties: CompositeProperties) {
     super(properties);
     this.clouds = [];
     this.distance = [];
@@ -55,7 +56,7 @@ export default class BackgroundLayer extends tabris.Composite {
     let cloudImage = Math.ceil(Math.random() * 21);
     let horizontalOffset = Math.ceil((0.5 - Math.random()) * this.get("bounds").width);
     let scale = ((10 - distance) / 10) * 1.6 + 0.4;
-    return new tabris.ImageView({
+    return new ImageView({
       image: "/images/cloud" + cloudImage + ".png",
       width: this.get("bounds").width,
       scaleMode: "fill",
