@@ -53,7 +53,7 @@ export default class BackgroundLayer extends Composite {
   }
 
   private generateCloud(position: number, distance: number) {
-    let cloudImage = Math.ceil(Math.random() * 21);
+    let cloudImage = Math.ceil(Math.random() * 6);
     let horizontalOffset = Math.ceil((0.5 - Math.random()) * this.get("bounds").width);
     let scale = ((10 - distance) / 10) * 1.6 + 0.4;
     return new ImageView({

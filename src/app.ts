@@ -15,23 +15,22 @@ let page = new Page({
   background: "rgb(83,100,160)"
 });
 
+let background = new BackgroundLayer({
+  top: 0,
+  left: 0,
+  right: 0,
+}).appendTo(page);
 let scrollView = new ScrollView({
   left: 0,
   top: 0,
   right: 0,
   bottom: 0
 }).appendTo(page);
-let background = new BackgroundLayer({
-  top: 0,
-  left: 0,
-  right: 0,
-}).appendTo(scrollView);
 
 let citySelector = createCitySelector().appendTo(scrollView);
 
 scrollView.on("scroll", (widget, offset) => {
-  background.scroll((<{ x: number, y: number }>offset).y);
-  citySelector.set("transform", { translationY: (<{ x: number, y: number }>offset).y * 0.6 });
+  background.scroll(-(<{ x: number, y: number }>offset).y);
 });
 
 if (localStorage.getItem("city")) {
@@ -101,7 +100,7 @@ function createCitySelector() {
     centerX: 0,
     message: "enter city",
     textColor: "#FFFFFF",
-    background: "rgba(255, 255, 255, 0.8)",
+    background: "rgba(255, 255, 255, 0)",
     font: "normal thin 32px sans-serif"
   }).on("focus", (widget) => widget.set("text", ""))
     .on("blur", (widget) => widget.set("text", localStorage.getItem("city") || ""))
@@ -113,7 +112,7 @@ function loadDataFromInput(widget: TextInput, text: string) {
   pollWeatherData(text)
     .then((data) => {
       widget.set("text", data.cityName + ", " + data.countryName);
-      localStorage.setItem("city", data.cityName + ", " + data.countryName);
+      localStorage.setItem("city", data.cityName);
       drawNewCity(data);
     }).catch((error) => {
       console.error(error);
