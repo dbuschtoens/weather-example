@@ -1,5 +1,5 @@
-import {WeatherData} from "./weatherService";
 import {ImageView, Composite, CompositeProperties, Transformation} from "tabris";
+import {WeatherData} from "./weatherService";
 
 export default class BackgroundLayer extends Composite {
   private clouds: ImageView[];

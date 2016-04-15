@@ -19,6 +19,7 @@ let scrollView = new ScrollView({
   left: 0,
   top: 0,
   right: 0,
+  bottom: 0
 }).appendTo(page);
 let background = new BackgroundLayer({
   top: 0,
@@ -91,7 +92,7 @@ function layoutUI() {
     "width": device.get("screenWidth") * (landscape ? 0.45 : 1),
     "height": device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 90 : 20)
   }).appendTo(landscape ? page : composite).draw();
-  page.find("#forecast").set({ top: "prev() 4", left: 0 }).appendTo(composite);
+  page.find("#forecast").set({ top: "prev() 4", left: 0, right: 0, height: 410 }).appendTo(composite);
 }
 
 function createCitySelector() {
