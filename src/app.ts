@@ -20,12 +20,7 @@ let background = new BackgroundLayer({
   left: 0,
   right: 0,
 }).appendTo(page);
-let scrollView = new ScrollView({
-  left: 0,
-  top: 0,
-  right: 0,
-  bottom: 0
-}).appendTo(page);
+let scrollView = new ScrollView().appendTo(page);
 
 let citySelector = createCitySelector().appendTo(scrollView);
 
@@ -74,6 +69,12 @@ function changeGraphFocus(forecastTabView: ForecastTabView, selection: Tab, data
 function layoutUI() {
   let orientation = device.get("orientation");
   let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
+  scrollView.set({
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: landscape ? device.get("screenWidth") * 0.55 : device.get("screenWidth")
+  });
   let composite = <Composite>page.find("#container")[0];
   if (!composite) {
     return;
@@ -81,7 +82,7 @@ function layoutUI() {
   composite.set({
     top: "prev()",
     left: 0,
-    width: landscape ? device.get("screenWidth") * 0.55 : device.get("screenWidth")
+    right: 0
   });
   page.find("#current").set({ top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
   page.find("#overview").set({ top: "prev()", left: 0, right: 0 }).appendTo(composite);
