@@ -3,9 +3,5 @@
     "module": "commonjs",
     "target": "es5",
     "outDir": "./bin/"
-  },
-    "exclude": [
-    "typings/main.d.ts",
-    "typings/main"
-    ]
+  }
 }
