@@ -1,5 +1,4 @@
 
-import {Promise, fetch, Response} from "tabris";
 const API_KEY = "ad695b2c2a3a0a72424a57e42adf2d0b";
 
 export function pollWeatherData(cityName: String): Promise<WeatherData> {

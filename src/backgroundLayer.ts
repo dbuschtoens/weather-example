@@ -62,7 +62,7 @@ export default class BackgroundLayer extends Composite {
       scaleMode: "fill",
       top: position,
       centerX: 0,
-      opacity: 0.8,
+      opacity: 0.7,
       transform: {
         translationX: horizontalOffset,
         scaleX: scale,

@@ -1,10 +1,10 @@
-import {CanvasProperties, Canvas} from "tabris";
+import {CanvasProperties, Canvas, Composite, CompositeProperties} from "tabris";
 import {WeatherData, WeatherDatum} from "./weatherService";
 
 const daysNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const uiFont = "12px sans-serif";
+const uiFont = "16px sans-serif";
 const uiLineColor = "rgba(255,255,255,0.3)";
-const uiTextColor = "rgba(255,255,255,0.5)";
+const uiTextColor = "rgba(0,0,0,0.4)";
 const graphLineColor = "rgba(255,255,255,0.55)";
 const uiLineWidth = 1.5;
 const graphLineWidth = 1;
@@ -17,17 +17,22 @@ const maxZoom = 5;
 const nightColor = "rgba(103,113,145,0.392)";
 const dayColor = "rgba(131,156,188,0.286)";
 
-interface WeatherGraphProperties extends CanvasProperties {
+interface WeatherGraphProperties extends CompositeProperties {
   data: WeatherData;
 }
 
 export default class WeatherGraph extends Canvas {
+  private width: number;
+  private height: number;
+  private canvas: Canvas;
   private dataPoints: WeatherDatum[];
   private data: WeatherData;
   private scale: { minX: number, maxX: number, minY: number, maxY: number };
 
   constructor(properties: WeatherGraphProperties) {
     super(properties);
+    this.width = 0;
+    this.height = 0;
     this.data = properties.data;
     this.scale = {
       minX: this.data.list[0].date.getTime(),
@@ -37,6 +42,12 @@ export default class WeatherGraph extends Canvas {
     };
     this.initDataPoints();
     this.initScale();
+    this.canvas = new Canvas({ top: 0, left: 0, right: 0, bottom: 0 });
+    this.on("resize", (widget, bounds, options) => {
+      this.height = bounds.height;
+      this.width = bounds.width;
+      this.draw();
+    });
   }
 
   public setScale(newMin: number, newMax: number) {
@@ -47,7 +58,7 @@ export default class WeatherGraph extends Canvas {
   }
 
   public draw() {
-    let ctx = <any>this.getContext("2d", this.get("width"), this.get("height"));
+    let ctx = <any>this.getContext("2d", this.width, this.height);
     this.drawBackground(ctx);
     this.drawTemperatureScale(ctx);
     this.drawTimeScale(ctx);
@@ -223,13 +234,13 @@ export default class WeatherGraph extends Canvas {
   }
 
   private getX(time: number): number {
-    let graphWidth = this.get("width") - margins.left - margins.right;
+    let graphWidth = this.width - margins.left - margins.right;
     let ratio = (time - this.scale.minX) / (this.scale.maxX - this.scale.minX);
     return margins.left + (graphWidth * ratio);
   }
 
   private getY(temperature: number): number {
-    let graphHeight = this.get("height") - margins.top - margins.bottom;
+    let graphHeight = this.height - margins.top - margins.bottom;
     let ratio = (temperature - this.scale.minY) / (this.scale.maxY - this.scale.minY);
     return margins.top + graphHeight * (1 - ratio);
   }

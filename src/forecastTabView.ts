@@ -24,101 +24,48 @@ interface ForecastTabViewProperties extends TabFolderProperties {
 export default class ForecastTabView extends TabFolder {
   private data: WeatherData;
   private tabs: Tab[];
-  private tabsLoaded: boolean[];
   private scrollView: ScrollView;
-  private lazyLoading: boolean;
-  private timeoutID: number;
 
   constructor(properties: ForecastTabViewProperties) {
+    let before = Date.now();
     properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
     properties.paging = true;
     super(properties);
     this.data = properties.data;
-    this.tabs = [this.createTab("today", true, false)];
+    this.tabs = [this.createTab(0, "today")];
     this.append(this.tabs[0]);
-    this.tabsLoaded = [];
-    let numDays = this.data.days.length;
-    for (let index = 1; index < numDays - 1; index++) {
+    for (let index = 1; index < this.data.days.length - 1; index++) {
       let headerName = dayNames[this.data.days[index][0].date.getDay()];
-      this.tabs.push(this.createTab(headerName, false, false));
+      this.tabs.push(this.createTab(index, headerName));
       this.append(this.tabs[index]);
     }
-    this.tabs.push(this.createTab(dayNames[this.data.days[numDays - 1][0].date.getDay()], false, true));
-    this.append(this.tabs[numDays - 1]);
-    this.on("change:selection", (widget: ForecastTabView, selection) => {
-      if (widget.lazyLoading) {
-        clearTimeout(widget.timeoutID);
-        setTimeout(() => widget.jitLoad(selection), 180);
-      } else {
-        widget.lazyLoading = true;
-        widget.timeoutID = setTimeout(() => widget.loadTabs(selection), 800);
-      }
-    });
-    this.loadTabs(this.tabs[0]);
+    console.log(Date.now() - before);
   }
 
   public getTabIndex(tab: Tab) {
     return this.tabs.indexOf(tab);
   }
 
-  private createTab(text: string, isFirst: boolean, isLast: boolean) {
+  private createTab(dayIndex: number, text: string) {
     let tab = new Tab();
-    this.createHeader(text, isFirst, isLast).appendTo(tab);
+    this.createHeader(text, dayIndex).appendTo(tab);
+    for (let forecast of this.data.days[dayIndex]) {
+      this.createForecastBox(forecast).appendTo(tab);
+    }
     return tab;
   }
 
-  private loadTabs(selected: Tab) {
-    let selectedTabNumber = this.tabs.indexOf(selected);
-    let maxTabNumber = Math.min(this.tabs.length - 1, selectedTabNumber + 1);
-    let minTabNumber = Math.max(0, selectedTabNumber - 1);
-    for (let tabNumber = minTabNumber; tabNumber <= maxTabNumber; tabNumber++) {
-      if (!this.tabsLoaded[tabNumber]) {
-        for (let forecast of this.data.days[tabNumber]) {
-          this.createForecastBox(forecast).appendTo(this.tabs[tabNumber]);
-        }
-        this.tabsLoaded[tabNumber] = true;
-      }
-    }
-    this.lazyLoading = false;
-  }
-
-  private jitLoad(tab: Tab) {
-    let day = this.tabs.indexOf(tab);
-    if (!this.tabsLoaded[day]) {
-      setTimeout(() => this.spawnForecastBoxRecurse(day, 0), 200);
-      this.lazyLoading = true;
-    }
-    this.timeoutID = setTimeout(() => this.loadTabs(tab), 900);
-  }
-
-  private spawnForecastBoxRecurse(day: number, forecast: number) {
-    if (forecast >= this.data.days[day].length) {
-      return;
-    }
-    let forecastBox = this.createForecastBox(this.data.days[day][forecast]).appendTo(this.tabs[day]);
-    forecastBox.set({
-      opacity: 0.0,
-    });
-    forecastBox.animate({
-      opacity: 1.0,
-    }, {
-        duration: 500,
-        easing: "ease-out"
-      });
-    setTimeout(() => this.spawnForecastBoxRecurse(day, forecast + 1), 20);
-  }
-
-  private createHeader(text: string, isFirst: boolean, isLast: boolean) {
+  private createHeader(text: string, tabIndex: number) {
     let container = new Composite({ top: 0, left: 0, right: 0, height: headerHeight, });
     let background = new Composite({ top: 0, left: margin, right: margin, background: headerBoxColor })
       .appendTo(container)
     new TextView({ text: text, centerY: 0, centerX: 0, font: bigFont, textColor: headerTextColor })
       .appendTo(background);
-    if (!isFirst) {
+    if (tabIndex !== 0) {
       this.createArrowImage("left").appendTo(background);
     }
-    if (!isLast) {
+    if (tabIndex !== this.data.days.length - 1) {
       this.createArrowImage("right").appendTo(background);
     }
     return container;
@@ -129,8 +76,12 @@ export default class ForecastTabView extends TabFolder {
       image: "./icons/arrow" + direction + ".png",
       centerY: 0,
       height: 50,
-      opacity: 0.6
-    }).set(direction, 0);
+      opacity: 0.6,
+      highlightOnTouch: true
+    }).set(direction, 0).on("tap", () => {
+      let nextTab = this.tabs[this.getTabIndex(this.get("selection")) + ((direction === "right") ? 1 : -1)];
+      this.set("selection", nextTab);
+    });
   }
 
   private createForecastBox(forecast: WeatherDatum) {
@@ -190,7 +141,7 @@ export default class ForecastTabView extends TabFolder {
 
   private createWeatherIcon(icon: string) {
     return new ImageView({
-      right: 60,
+      right: 80,
       width: weatherIconSize,
       height: weatherIconSize,
       centerY: 0,

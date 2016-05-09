@@ -3,5 +3,16 @@
     "module": "commonjs",
     "target": "es5",
     "outDir": "./bin/"
-  }
+  },
+  "files": [
+    "./node_modules/tabris/promise.d.ts",
+    "./node_modules/tabris/whatwg-fetch.d.ts",
+    "./src/app.ts",
+    "./src/backgroundLayer.ts",
+    "./src/currentWeatherView.ts",
+    "./src/forecastOverview.ts",
+    "./src/forecastTabView.ts",
+    "./src/weatherGraph.ts",
+    "./src/weatherService.ts"
+  ]
 }
