@@ -27,7 +27,6 @@ export default class ForecastTabView extends TabFolder {
   private scrollView: ScrollView;
 
   constructor(properties: ForecastTabViewProperties) {
-    let before = Date.now();
     properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
     properties.paging = true;
@@ -40,7 +39,6 @@ export default class ForecastTabView extends TabFolder {
       this.tabs.push(this.createTab(index, headerName));
       this.append(this.tabs[index]);
     }
-    console.log(Date.now() - before);
   }
 
   public getTabIndex(tab: Tab) {
