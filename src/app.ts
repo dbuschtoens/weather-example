@@ -6,14 +6,13 @@ import Graph from "./weatherGraph";
 import BackgroundLayer from "./backgroundLayer";
 import {ui, device, Page, ScrollView, ActivityIndicator, Composite, Tab, TextInput} from "tabris";
 
-ui.set("toolbarVisible", false);
 device.on("change:orientation", () => layoutUI());
 
 let page = new Page({
   title: "Weather Forecast",
   topLevel: true,
   background: "rgb(83,100,160)"
-});
+}).once("resize", () => ui.set("toolbarVisible", false));
 
 let background = new BackgroundLayer({
   top: 0,
@@ -28,9 +27,12 @@ scrollView.on("scroll", (widget, offset) => {
   background.scroll(-(<{ x: number, y: number }>offset).y);
 });
 
+layoutUI();
+
 if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
+
 
 function drawNewCity(data: WeatherData) {
   page.find(".weatherInfo").dispose();
@@ -84,7 +86,7 @@ function layoutUI() {
     left: 0,
     right: 0
   });
-  page.find("#current").set({ top: 0, left: 0, right: 0, height: 200 }).appendTo(composite);
+  page.find("#current").set({ top: 0, left: 50, right: 50, height: 200 }).appendTo(composite);
   page.find("#overview").set({ top: "prev()", left: 0, right: 0 }).appendTo(composite);
   page.find("#graph")[0].set({
     "top": landscape ? 55 : "prev()",
@@ -123,6 +125,7 @@ function loadDataFromInput(widget: TextInput, text: string) {
 }
 
 function animateGraphChange(graph: Graph, min: number, max: number) {
+  graph.off("animationend");
   graph.animate({ opacity: 0 }, { duration: 180, easing: "ease-in-out" });
   graph.once("animationend", () => {
     graph.setScale(min, max);
