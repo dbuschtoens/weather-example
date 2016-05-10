@@ -11,22 +11,23 @@ let page = new Page({
   topLevel: true,
   background: "rgb(83,100,160)"
 }).on("resize", () => layoutUI()).once("resize", () => ui.set("toolbarVisible", false));
-
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
   right: 0,
 }).appendTo(page);
-let scrollView = new ScrollView({ id: "scrollView" }).appendTo(page);
-let citySelector = createCitySelector().appendTo(scrollView);
-scrollView.on("scroll", (widget, offset) => {
+let scrollView = new ScrollView().on("scroll", (widget, offset) => {
   background.scroll(-(<{ x: number, y: number }>offset).y);
-});
+}).appendTo(page);
+let citySelector = createCitySelector().appendTo(scrollView);
 if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
 let finishedLoading = false;
-function drawNewCity(data: WeatherData) {
+
+page.open();
+
+function presentWeather(data: WeatherData) {
   page.find(".weatherInfo").dispose();
   createWeatherInformation(data);
   layoutUI();
@@ -103,7 +104,7 @@ function loadDataFromInput(widget: TextInput, text: string) {
     .then((data) => {
       widget.set("text", data.cityName + ", " + data.countryName);
       localStorage.setItem("city", data.cityName);
-      drawNewCity(data);
+      presentWeather(data);
     }).catch((error) => {
       console.error(error);
       widget.set("text", "");
@@ -119,6 +120,3 @@ function animateGraphChange(graph: Graph, min: number, max: number) {
     graph.animate({ opacity: 1 }, { duration: 180, easing: "ease-in-out" });
   });
 }
-
-
-page.open();
