@@ -38,12 +38,15 @@ function createWeatherInformation(data: WeatherData) {
     background.set("height", bounds.height + bounds.top);
   }).appendTo(scrollView);
   new CurrentWeatherView(properties).set("id", "current").appendTo(container);
-  new Overview(properties).set("id", "overview").appendTo(container);
   let graph = new Graph(properties).set("id", "graph").appendTo(container);
-  new ForecastTabView(properties).set("id", "forecast")
+  let forecastTabView = new ForecastTabView(properties).set("id", "forecast")
     .on("change:selection", (widget, selection) => {
       changeGraphFocus(<ForecastTabView>widget, selection, data);
     }).appendTo(container);
+  new Overview(properties).set("id", "overview").on("daySelect", (index) => {
+    forecastTabView.set("selection", forecastTabView.getTab(index));
+    console.error(index);
+  }).appendTo(container);
   finishedLoading = true;
 }
 
@@ -72,7 +75,7 @@ function layoutUI() {
     page.apply({
       "#container": { top: "prev()", left: 0, right: 0 },
       "#current": { top: 0, left: 0, right: 0, height: 200 },
-      "#overview": { top: "prev()", left: 0, right: 0 },
+      "#overview": { top: "#current", left: 0, right: 0 },
       "#graph": { "top": "#overview", "right": 0, "left": 0, "height": 200 },
       "#forecast": { top: ["#graph", 4], left: 0, right: 0, height: 410 }
     });

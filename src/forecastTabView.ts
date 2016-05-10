@@ -45,6 +45,10 @@ export default class ForecastTabView extends TabFolder {
     return this.tabs.indexOf(tab);
   }
 
+  public getTab(index: number) {
+    return this.tabs[index];
+  }
+
   private createTab(dayIndex: number, text: string) {
     let tab = new Tab();
     this.createHeader(text, dayIndex).appendTo(tab);

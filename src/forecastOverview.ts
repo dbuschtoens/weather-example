@@ -17,15 +17,18 @@ interface ForecastOverviewProperties extends CompositeProperties {
 }
 
 export default class ForecastOverview extends Composite {
+  private days: WeatherDatum[][];
 
   constructor(properties: ForecastOverviewProperties) {
     super(properties);
-    for (let day of properties.data.days) {
-      this.createDayInformationBox(day).appendTo(this);
+    this.days = properties.data.days;
+    for (let index = 0; index < this.days.length; index++) {
+      this.createDayInformationBox(index).appendTo(this);
     }
   }
 
-  private createDayInformationBox(dayForecasts: WeatherDatum[]) {
+  private createDayInformationBox(dayIndex: number) {
+    let dayForecasts = this.days[dayIndex];
     let container = new Composite({
       top: this.children().length === 0 ? 0 : "prev()",
       left: margin,
@@ -35,8 +38,9 @@ export default class ForecastOverview extends Composite {
       top: margin,
       left: margin,
       right: margin,
-      background: infoBoxColor
-    }).appendTo(container);
+      background: infoBoxColor,
+      highlightOnTouch: true
+    }).on("tap", () => this.trigger("daySelect", dayIndex)).appendTo(container);
     let minTemp = Math.min(...dayForecasts.map((forecast) => forecast.temperature));
     let maxTemp = Math.max(...dayForecasts.map((forecast) => forecast.temperature));
     this.createDayText(dayForecasts[0]).appendTo(infoBox);
