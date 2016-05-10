@@ -1,5 +1,5 @@
- import {CompositeProperties, Composite, ImageView, TextView} from "tabris";
- import {WeatherData} from "./weatherService";
+import {CompositeProperties, Composite, ImageView, TextView} from "tabris";
+import {WeatherData} from "./weatherService";
 
 const textColor = "rgb(255, 255, 255)";
 const margin = 8;
@@ -31,7 +31,7 @@ export default class CurrentWeatherView extends Composite {
       width: iconSize,
       height: iconSize,
       scaleMode: "stretch",
-      image: "/icons/" + icon + "Big.png"
+      image: "/icons/" + icon + ".png"
     });
   }
 
