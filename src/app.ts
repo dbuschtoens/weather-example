@@ -37,15 +37,17 @@ function createWeatherInformation(data: WeatherData) {
   let container = new Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
     background.set("height", bounds.height + bounds.top);
   }).appendTo(scrollView);
-  new CurrentWeatherView(properties).set("id", "current").appendTo(container);
+  let currentWeatherView = new CurrentWeatherView(properties).set("id", "current").appendTo(container);
   let graph = new Graph(properties).set("id", "graph").appendTo(container);
   let forecastTabView = new ForecastTabView(properties).set("id", "forecast")
     .on("change:selection", (widget, selection) => {
       changeGraphFocus(<ForecastTabView>widget, selection, data);
     }).appendTo(container);
-  new Overview(properties).set("id", "overview").on("daySelect", (index) => {
+  let overview = new Overview(properties).set("id", "overview").on("daySelect", (index) => {
     forecastTabView.set("selection", forecastTabView.getTab(index));
-    console.error(index);
+    let scrollToGraph = container.get("bounds").top + currentWeatherView.get("bounds").height + overview.get("bounds").height;
+    let maxScroll = container.get("bounds").top + container.get("bounds").height - page.get("bounds").height;
+    scrollView.set("scrollY", Math.min(scrollToGraph, maxScroll));
   }).appendTo(container);
   finishedLoading = true;
 }

@@ -27,14 +27,13 @@ export default class ForecastTabView extends TabFolder {
   private scrollView: ScrollView;
 
   constructor(properties: ForecastTabViewProperties) {
-    properties.height = headerHeight + 8 * forecastBoxHeight;
     properties.tabBarLocation = "hidden";
     properties.paging = true;
     super(properties);
     this.data = properties.data;
     this.tabs = [this.createTab(0, "today")];
     this.append(this.tabs[0]);
-    for (let index = 1; index < this.data.days.length - 1; index++) {
+    for (let index = 1; index < this.data.days.length; index++) {
       let headerName = dayNames[this.data.days[index][0].date.getDay()];
       this.tabs.push(this.createTab(index, headerName));
       this.append(this.tabs[index]);
