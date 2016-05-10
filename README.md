@@ -7,7 +7,7 @@ as well 5 days forecast.
 ## Install instructions
 To install the Typescript compiler from [npm](https://www.npmjs.org/), the Node.js package manager, 
 excecute `npm install -g typescript` in the examples root directory.
-Next, write `tsc` to run the Typescript compiler that will generate the JavaScript files in `/bin/`. 
+Next, write `tsc` to run the Typescript compiler that will generate the JavaScript files in `/dist/`. 
 
 ## Image sources
 

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es5",
-    "outDir": "./bin/"
+    "outDir": "./dist/"
   },
   "files": [
     "./node_modules/tabris/promise.d.ts",

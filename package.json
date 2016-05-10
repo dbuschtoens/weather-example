@@ -1,5 +1,5 @@
 {
-  "main": "./bin/app.js",
+  "main": "./dist/app.js",
   "dependencies": {
     "tabris": "^1.8.0"
   }
