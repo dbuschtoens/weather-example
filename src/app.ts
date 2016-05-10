@@ -6,53 +6,45 @@ import Graph from "./weatherGraph";
 import BackgroundLayer from "./backgroundLayer";
 import {ui, device, Page, ScrollView, ActivityIndicator, Composite, Tab, TextInput} from "tabris";
 
-device.on("change:orientation", () => layoutUI());
-
 let page = new Page({
   title: "Weather Forecast",
   topLevel: true,
   background: "rgb(83,100,160)"
-}).once("resize", () => ui.set("toolbarVisible", false));
+}).on("resize", () => layoutUI()).once("resize", () => ui.set("toolbarVisible", false));
 
 let background = new BackgroundLayer({
   top: 0,
   left: 0,
   right: 0,
 }).appendTo(page);
-let scrollView = new ScrollView().appendTo(page);
-
+let scrollView = new ScrollView({ id: "scrollView" }).appendTo(page);
 let citySelector = createCitySelector().appendTo(scrollView);
-
 scrollView.on("scroll", (widget, offset) => {
   background.scroll(-(<{ x: number, y: number }>offset).y);
 });
-
-layoutUI();
-
 if (localStorage.getItem("city")) {
   loadDataFromInput(citySelector, localStorage.getItem("city"));
 }
-
-
+let finishedLoading = false;
 function drawNewCity(data: WeatherData) {
   page.find(".weatherInfo").dispose();
   createWeatherInformation(data);
   layoutUI();
 }
 
-
 function createWeatherInformation(data: WeatherData) {
   let properties = { data: data, class: "weatherInfo" };
-  new Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
+  let container = new Composite({ class: "weatherInfo", id: "container" }).on("resize", (widget, bounds) => {
     background.set("height", bounds.height + bounds.top);
   }).appendTo(scrollView);
-  new CurrentWeatherView(properties).set("id", "current").appendTo(page);
-  new Overview(properties).set("id", "overview").appendTo(page);
-  let graph = new Graph(properties).set("id", "graph").appendTo(page);
+  new CurrentWeatherView(properties).set("id", "current").appendTo(container);
+  new Overview(properties).set("id", "overview").appendTo(container);
+  let graph = new Graph(properties).set("id", "graph").appendTo(container);
   new ForecastTabView(properties).set("id", "forecast")
     .on("change:selection", (widget, selection) => {
       changeGraphFocus(<ForecastTabView>widget, selection, data);
-    }).appendTo(page);
+    }).appendTo(container);
+  finishedLoading = true;
 }
 
 function changeGraphFocus(forecastTabView: ForecastTabView, selection: Tab, data: WeatherData) {
@@ -69,37 +61,27 @@ function changeGraphFocus(forecastTabView: ForecastTabView, selection: Tab, data
 }
 
 function layoutUI() {
-  let orientation = device.get("orientation");
-  let landscape = (orientation === "landscape-primary" || orientation === "landscape-secondary");
+  let bounds = page.get("bounds");
   scrollView.set({
     top: 0,
     left: 0,
     bottom: 0,
-    width: landscape ? device.get("screenWidth") * 0.55 : device.get("screenWidth")
+    width: bounds.width
   });
-  let composite = <Composite>page.find("#container")[0];
-  if (!composite) {
-    return;
+  if (finishedLoading) {
+    page.apply({
+      "#container": { top: "prev()", left: 0, right: 0 },
+      "#current": { top: 0, left: 0, right: 0, height: 200 },
+      "#overview": { top: "prev()", left: 0, right: 0 },
+      "#graph": { "top": "#overview", "right": 0, "left": 0, "height": 200 },
+      "#forecast": { top: ["#graph", 4], left: 0, right: 0, height: 410 }
+    });
   }
-  composite.set({
-    top: "prev()",
-    left: 0,
-    right: 0
-  });
-  page.find("#current").set({ top: 0, left: 50, right: 50, height: 200 }).appendTo(composite);
-  page.find("#overview").set({ top: "prev()", left: 0, right: 0 }).appendTo(composite);
-  page.find("#graph")[0].set({
-    "top": landscape ? 55 : "prev()",
-    "right": 0,
-    "width": device.get("screenWidth") * (landscape ? 0.45 : 1),
-    "height": device.get("screenHeight") / (landscape ? 1 : 3) - (landscape ? 90 : 20)
-  }).appendTo(landscape ? page : composite).draw();
-  page.find("#forecast").set({ top: "prev() 4", left: 0, right: 0, height: 410 }).appendTo(composite);
 }
 
 function createCitySelector() {
   return new TextInput({
-    top: 0,
+    top: 30,
     centerX: 0,
     message: "enter city",
     textColor: "#FFFFFF",
