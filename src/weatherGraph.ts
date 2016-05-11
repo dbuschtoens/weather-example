@@ -88,7 +88,6 @@ export default class WeatherGraph extends Canvas {
     this.scale.maxY = meanTemp + tempScaleFactor * (maxTemp - meanTemp);
   }
 
-
   private drawBackground(ctx: CanvasContext) {
     let now = this.scale.minX;
     let dayOffset = new Date(now).getDate() - this.data.list[0].date.getDate();
