@@ -1,4 +1,4 @@
-import {CanvasProperties, Canvas, Composite, CompositeProperties} from "tabris";
+import {CanvasProperties, Canvas, CanvasContext, Composite, CompositeProperties} from "tabris";
 import {WeatherData, WeatherDatum} from "./weatherService";
 
 const daysNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -58,7 +58,7 @@ export default class WeatherGraph extends Canvas {
   }
 
   public draw() {
-    let ctx = <any>this.getContext("2d", this.width, this.height);
+    let ctx = this.getContext("2d", this.width, this.height);
     this.drawBackground(ctx);
     this.drawTemperatureScale(ctx);
     this.drawTimeScale(ctx);
@@ -89,7 +89,7 @@ export default class WeatherGraph extends Canvas {
   }
 
 
-  private drawBackground(ctx: any) {
+  private drawBackground(ctx: CanvasContext) {
     let now = this.scale.minX;
     let dayOffset = new Date(now).getDate() - this.data.list[0].date.getDate();
     let sunriseTime = this.data.sunriseTime.getTime() + dayOffset * dayLength;
@@ -110,7 +110,7 @@ export default class WeatherGraph extends Canvas {
     this.drawArea(ctx, startTime, this.scale.maxX, isDay ? dayColor : nightColor);
   }
 
-  private drawArea(ctx: any, startTime: number, endTime: number, color: string) {
+  private drawArea(ctx: CanvasContext, startTime: number, endTime: number, color: string) {
     ctx.fillStyle = color;
     let graphHeight = this.get("height") - margins.top - margins.bottom;
     ctx.fillRect(this.getX(startTime),
@@ -120,7 +120,7 @@ export default class WeatherGraph extends Canvas {
     );
   };
 
-  private drawTemperatureScale(ctx: any) {
+  private drawTemperatureScale(ctx: CanvasContext) {
     let degreeHeight = this.getY(this.scale.minY) - this.getY(this.scale.minY + 1);
     let degreeStep = (degreeHeight > minVerticalDistance) ? 1 : (2 * degreeHeight > minVerticalDistance) ? 2 : 5;
     let minHeight = Math.ceil(this.scale.minY / degreeStep) * degreeStep;
@@ -141,7 +141,7 @@ export default class WeatherGraph extends Canvas {
     }
   }
 
-  private drawTimeScale(ctx: any) {
+  private drawTimeScale(ctx: CanvasContext) {
     ctx.strokeStyle = uiLineColor;
     ctx.lineWidth = uiLineWidth;
     ctx.fillStyle = uiTextColor;
@@ -165,21 +165,21 @@ export default class WeatherGraph extends Canvas {
     }
   }
 
-  private drawVerticalLine(ctx: any, time: number, extraLength: number) {
+  private drawVerticalLine(ctx: CanvasContext, time: number, extraLength: number) {
     ctx.beginPath();
     ctx.moveTo(this.getX(time), this.getY(this.scale.minY));
     ctx.lineTo(this.getX(time), this.getY(this.scale.maxY) - extraLength);
     ctx.stroke();
   }
 
-  private drawDayLabel(ctx: any, day: number) {
+  private drawDayLabel(ctx: CanvasContext, day: number) {
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
     let dayName = daysNames[new Date(day).getDay()];
     ctx.fillText(dayName, this.getX(day) + 3, this.getY(this.scale.maxY) + 1);
   }
 
-  private drawHourLabel(ctx: any, hour: number) {
+  private drawHourLabel(ctx: CanvasContext, hour: number) {
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     let hourNumber = new Date(hour).getHours();
@@ -187,7 +187,7 @@ export default class WeatherGraph extends Canvas {
     ctx.fillText(hourString, this.getX(hour), this.getY(this.scale.minY) + 1);
   }
 
-  private drawTemperatureCurve(ctx: any) {
+  private drawTemperatureCurve(ctx: CanvasContext) {
     let points: Point[] = this.dataPoints.map((forecast) => ({ x: forecast.date.getTime(), y: forecast.temperature }));
     for (let i = 1; i < points.length - 1; i++) {
       points[i].dydx = this.estimateDerivative(points[i - 1], points[i], points[i + 1]);
@@ -209,7 +209,7 @@ export default class WeatherGraph extends Canvas {
     }
   }
 
-  private drawHermiteInterpolation(ctx: any, points: Point[]) {
+  private drawHermiteInterpolation(ctx: CanvasContext, points: Point[]) {
     ctx.strokeStyle = graphLineColor;
     ctx.lineWidth = graphLineWidth;
     for (let i = 0; i < points.length - 1; i++) {
@@ -228,7 +228,7 @@ export default class WeatherGraph extends Canvas {
     }
   }
 
-  private drawPoint(ctx: any, point: Point) {
+  private drawPoint(ctx: CanvasContext, point: Point) {
     ctx.fillStyle = graphLineColor;
     ctx.fillRect(this.getX(point.x) - 2, this.getY(point.y) - 2, 4, 4);
   }
