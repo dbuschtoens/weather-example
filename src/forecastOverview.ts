@@ -34,7 +34,7 @@ export default class ForecastOverview extends Composite {
       left: margin,
       right: margin,
     });
-    let infoBox = <Composite>new Composite({
+    let infoBox = new Composite({
       top: margin,
       left: margin,
       right: margin,

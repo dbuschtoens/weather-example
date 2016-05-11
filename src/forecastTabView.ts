@@ -92,7 +92,7 @@ export default class ForecastTabView extends TabFolder {
       right: 0,
       height: forecastBoxHeight
     });
-    let forecastBox = <Composite>new Composite({
+    let forecastBox = new Composite({
       top: margin,
       left: margin,
       right: margin,

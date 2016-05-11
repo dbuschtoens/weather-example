@@ -17,7 +17,7 @@ let background = new BackgroundLayer({
   right: 0,
 }).appendTo(page);
 let scrollView = new ScrollView().on("scroll", (widget, offset) => {
-  background.scroll(-(<{ x: number, y: number }>offset).y);
+  background.scroll(-offset.y);
 }).appendTo(page);
 let citySelector = createCitySelector().appendTo(scrollView);
 if (localStorage.getItem("city")) {
