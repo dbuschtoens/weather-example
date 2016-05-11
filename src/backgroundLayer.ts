@@ -30,7 +30,7 @@ export default class BackgroundLayer extends Composite {
 
   public scroll(offset: number) {
     for (let i = 0; i < this.clouds.length; i++) {
-      let previousTransform = <Transformation>this.clouds[i].get("transform");
+      let previousTransform = this.clouds[i].get("transform");
       this.clouds[i].set("transform", {
         translationX: previousTransform.translationX,
         scaleX: previousTransform.scaleX,
