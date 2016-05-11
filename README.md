@@ -31,12 +31,12 @@ To use our resources, you must either:
 
 You may NOT repackage and redistribute our resources in any way, shape or form. You may NOT plop a brush down onto a plain or background, with nothing else on the page, and redistribute it or sell it. This is the same as redistributing the brushes/images themselvesPlacing the brush onto a product or within a design is fine, of course. You MAY use our resources within your own design, painting, etc and whatever you like with it (provided that proper credit is given, as below). You MAY NOT redistribute any of our designs as rubber stamps. have plans to do this in the future. Tutorials from this site may NOT be redistributed in any manner. If you would like to put them up in forum or somesuch, contact us first.
 
-Providing credit:
+##### Providing credit:
 
 Provide credit to us alongside or on however you’ve used our resources, either as “Obsidian Dawn” or www.obsidiandawn.com If possible, provide a link back here, so that others know where you found the brushes and can get a set of their very own! The link should go to http://www.obsidiandawn.com You may use these brushes or patterns commercially without a license, but you MUST credit us alongside their usageIf you’re a digital scrapbooker, most people list credit and the website URL in their TOU text file that comes with the download. If you them in a website design, and the design is on every page of the website, then so should the credit (most people put it in a footer). If cannot provide credit and want clear-cut rights to be able to use these brushes in your designs, you may purchase a commercial license. it! 
 Enjoy!
 
-Webmasters:
+##### Webmasters:
 
 You MAY post information about our resources on your websites without needing to contact us for permission. You may NOT host our files on server or link to our files directly. You MUST send the user to this website for the download. Again, you can do this without needing to us for permission. If you are looking to host the files themselves, special permissions are given for this – contact us.
     
