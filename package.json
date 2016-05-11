@@ -1,6 +1,7 @@
 {
   "main": "./dist/app.js",
   "dependencies": {
-    "tabris": "^1.8.0"
+    "tabris": "^1.8.0",
+    "typescript": "^1.8.10"
   }
 }
