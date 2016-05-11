@@ -1,18 +1,8 @@
-<<<<<<< HEAD
-# TypeScript Weather App Example
-The TypeScript Weather App example showcases Tabris.js applications written in TypeScript. The App downloads weather data of the specified city from [OpenWeatherMap.org](http://openweathermap.org/) and displays current conditions as well 5 days forecast.
-=======
 # Typescript Weather App Example
 The Typescript Weather App example showcases Tabris.js applications written in Typescript. The App downloads weather data of the specified city from [OpenWeatherMap.org](http://openweathermap.org/) and displays current conditions as well 5 days forecast.
->>>>>>> branch 'master' of https://github.com/dbuschtoens/weather-example.git
-
 
 ## Install instructions
-<<<<<<< HEAD
 Execute `npm install` in this examples root directory to install the TypeScript compiler. Next, write `tsc` to run the TypeScript compiler and generate the JavaScript files in `/dist/`. 
-=======
-To install the Typescript compiler from [npm](https://www.npmjs.org/), the Node.js package manager, excecute `npm install -g typescript` in the examples root directory. Next, write `tsc` to run the Typescript compiler that will generate the JavaScript files in `/dist/`. 
->>>>>>> branch 'master' of https://github.com/dbuschtoens/weather-example.git
 
 ## Image sources
 
